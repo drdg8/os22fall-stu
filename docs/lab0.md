@@ -9,7 +9,7 @@
 ## 2 实验环境
 
 - Docker
-- 实验环境镜像[下载地址](https://pan.zju.edu.cn/share/ded28f6f578c955bfe94b79192)
+- 实验环境镜像[下载地址](https://pan.zju.edu.cn/share/0a5368fd54ecbe917922b603a1)
 
 ## 3 实验基础知识介绍
 
@@ -144,30 +144,30 @@ $ make clean        # 清除所有编译好的 object 文件
 
 ```bash
 # 导入docker镜像
-$ cat oslab.tar | docker import - oslab:2021
+$ docker load < oslab.tar
 
 # 查看docker镜像
 $ docker images
-REPOSITORY   TAG       IMAGE ID       CREATED        SIZE
-oslab        latest    b2b39a3bcd81   404 days ago   3.62GB
+REPOSITORY               TAG                IMAGE ID       CREATED        SIZE
+alphavake/oslab          latest             8c15472cd111   5 months ago   3.63GB
 
 # 从镜像创建一个容器
-$ docker run --name oslab -it oslab:2021 bash   # --name:容器名称 -i:交互式操作 -t:终端
+$ docker run --name oslab -it alphavake/oslab:latest bash   # --name:容器名称 -i:交互式操作 -t:终端
 root@132a140bd724:/#                            # 提示符变为 '#' 表明成功进入容器 后面的字符串根据容器而生成，为容器id
 root@132a140bd724:/# exit (or CTRL+D)           # 从容器中退出 此时运行docker ps，运行容器的列表为空
 
 # 启动处于停止状态的容器
 $ docker start oslab        # oslab为容器名称
 $ docker ps                 # 可看到容器已经启动
-CONTAINER ID   IMAGE        COMMAND       CREATED              STATUS        PORTS     NAMES
-132a140bd724   oslab:2021   "bash"        About a minute ago   Up 1 second             oslab
+CONTAINER ID   IMAGE                    COMMAND       CREATED              STATUS        PORTS     NAMES
+132a140bd724   alphavake/oslab:latest   "bash"        About a minute ago   Up 1 second             oslab
 
 # 从终端连入 docker 容器
 $ docker exec -it oslab bash
 
 # 挂载本地目录
 # 把用户的 home 目录映射到 docker 镜像内的 have-fun-debugging 目录
-$ docker run --name oslab -it -v ${HOME}:/have-fun-debugging oslab:2021 bash    # -v 本地目录:容器内目录
+$ docker run --name oslab -it -v ${HOME}:/have-fun-debugging alphavake/oslab:latest bash    # -v 本地目录:容器内目录
 ```
 
 ### 4.2 获取 Linux 源码和已经编译好的文件系统

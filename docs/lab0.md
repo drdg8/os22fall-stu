@@ -9,7 +9,7 @@
 ## 2 实验环境
 
 - Docker
-- 实验环境镜像[下载地址](https://pan.zju.edu.cn/share/0a5368fd54ecbe917922b603a1)
+- 实验环境镜像[下载地址](https://pan.zju.edu.cn/share/b3cee13d5974178ad441a57c52)
 
 ## 3 实验基础知识介绍
 

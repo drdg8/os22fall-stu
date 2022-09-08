@@ -174,13 +174,13 @@ $ docker run --name oslab -it -v ${HOME}:/have-fun-debugging oslab:2021 bash    
 
 从 [https://www.kernel.org](https://www.kernel.org) 下载最新的 Linux 源码。
 
-并且使用 git 工具 clone [本仓库](https://gitee.com/zjusec/os21fall)。其中已经准备好了根文件系统的镜像。
+并且使用 git 工具 clone [本仓库](https://gitee.com/zjusec/os22fall-stu)。其中已经准备好了根文件系统的镜像。
 
 > 根文件系统为 Linux Kenrel 提供了基础的文件服务，在启动 Linux Kernel 时是必要的。
 
 ```bash
-$ git clone https://gitee.com/zjusec/os21fall
-$ cd os21fall/src/lab0
+$ git clone https://gitee.com/zjusec/os22fall-stu
+$ cd os22fall-stu/src/lab0
 $ ls
 rootfs.img  # 已经构建完成的根文件系统的镜像
 ```

@@ -1,7 +1,7 @@
 site_name: 浙江大学21年秋操作系统实验 
-site_url: https://zjusec.gitee.io/os21fall/
-repo_url: https://gitee.com/zjusec/os21fall
-repo_name: zjusec/os21fall
+site_url: https://zjusec.gitee.io/os22fall-stu/
+repo_url: https://gitee.com/zjusec/os22fall-stu
+repo_name: zjusec/os22fall-stu
 theme:
   name: material
   palette:

@@ -6,7 +6,7 @@
 * 学习 Makefile 相关知识， 补充项目中的 Makefile 文件， 来完成对整个工程的管理。
 ## 2 实验环境
 
-Docker in Lab0
+- Environment in Lab0
 
 ## 3 实验基础知识介绍
 

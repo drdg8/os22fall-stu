@@ -1,15 +1,11 @@
 # Lab 0: GDB & QEMU 调试 64 位 RISC-V LINUX
 
 ## 1 实验目的
-<!-- - 了解容器的使用 -->
 - 使用交叉编译工具, 完成Linux内核代码编译
 - 使用QEMU运行内核
 - 熟悉GDB和QEMU联合调试
 
 ## 2 实验环境
-
-<!-- - Docker
-- 实验环境镜像[下载地址](https://pan.zju.edu.cn/share/b3cee13d5974178ad441a57c52) -->
 
 - Ubuntu 22.04
 - Windows Subsystem for Linux 2
@@ -24,18 +20,6 @@
 1. [The Missing Semester of Your CS Education](https://missing-semester-cn.github.io/2020/shell-tools)[&gt;&gt;Video&lt;&lt;](https://www.bilibili.com/video/BV1x7411H7wa?p=2)
 2. [GNU/Linux Command-Line Tools Summary](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/index.html)
 3. [Basics of UNIX](https://github.com/berkeley-scf/tutorial-unix-basics)
-
-<!-- ### 3.2 Docker 使用基础
-
-#### Docker 基本介绍
-
-Docker 是一种利用容器（container）来进行创建、部署和运行应用的工具。Docker 把一个应用程序运行需要的二进制文件、运行需要的库以及其他依赖文件打包为一个包（package），然后通过该包创建容器并运行，由此被打包的应用便成功运行在了 Docker 容器中。之所以要把应用程序打包，并以容器的方式运行，主要是因为在生产开发环境中，常常会遇到应用程序和系统环境变量以及一些依赖的库文件不匹配，导致应用无法正常运行的问题。Docker 带来的好处是只要我们将应用程序打包完成（组装成为 Docker image），在任意安装了 Docker 的机器上，都可以通过运行容器的方式来运行该应用程序，因而将依赖、环境变量等带来的应用部署问题解决了。
-
-如果想了解更多 Docker 的详情，请参考[官网](https://www.docker.com/)。
-
-#### Docker 安装
-
-请根据 [https://docs.docker.com/get-docker](https://docs.docker.com/get-docker) 自行在本机安装 Docker 环境。你可以从 [2 实验环境](#2) 中获得实验所需的环境，我们已经为你准备好了 RISC-V 工具链，以及 QEMU 模拟器，使用方法请参见 [4 实验步骤](#4)。 -->
 
 ### 3.2 QEMU 使用基础
 
@@ -78,7 +62,6 @@ $ qemu-system-riscv64 \
 GNU 调试器（英语：GNU Debugger，缩写：gdb）是一个由 GNU 开源组织发布的、UNIX/LINUX 操作系统下的、基于命令行的、功能强大的程序调试工具。借助调试器，我们能够查看另一个程序在执行时实际在做什么（比如访问哪些内存、寄存器），在其他程序崩溃的时候可以比较快速地了解导致程序崩溃的原因。
 被调试的程序可以和 GDB 运行在同一台机器上，并由 GDB 控制（本地调试 native debug）。也可以只和 `gdb-server` 运行在同一台机器上，由连接着 `gdb-server` 的 GDB 进行控制（远程调试 remote debug）。
 
-<!-- 总的来说，GDB 有以下4个功能： -->
 GDB 的功能十分强大，我们经常在调试中用到的有:
 - 启动程序，并指定可能影响其行为的所有内容
 - 使程序在指定条件下停止
@@ -173,36 +156,6 @@ $ sudo apt install qemu-system-misc
 $ sudo apt install gdb-multiarch
 ```
 
-<!-- 请根据 **3.2 Docker 使用基础** 安装 Docker 环境。然后**参考并理解**以下步骤，导入我们已经准备好的 Docker 镜像：
-
-```bash
-# 导入docker镜像
-$ docker load < oslab.tar
-
-# 查看docker镜像
-$ docker images
-REPOSITORY       TAG       IMAGE ID       CREATED        SIZE
-oslab            2021      8c15472cd111   5 months ago   3.63GB
-
-# 从镜像创建一个容器
-$ docker run --name oslab -it oslab:2021 bash   # --name:容器名称 -i:交互式操作 -t:终端
-root@132a140bd724:/#                            # 提示符变为 '#' 表明成功进入容器 后面的字符串根据容器而生成，为容器id
-root@132a140bd724:/# exit (or CTRL+D)           # 从容器中退出 此时运行docker ps，运行容器的列表为空
-
-# 启动处于停止状态的容器
-$ docker start oslab        # oslab为容器名称
-$ docker ps                 # 可看到容器已经启动
-CONTAINER ID   IMAGE          COMMAND         CREATED          STATUS         PORTS                    NAMES
-234326b4094e   oslab:2021     "/bin/bash"     5 seconds ago    Up 4 seconds                            compassionate_goldwasser
-
-# 从终端连入 docker 容器
-$ docker exec -it oslab bash
-
-# 挂载本地目录
-# 把用户的 home 目录映射到 docker 镜像内的 have-fun-debugging 目录
-$ docker run --name oslab -it -v ${HOME}:/have-fun-debugging oslab:2021 bash    # -v 本地目录:容器内目录
-``` -->
-
 ### 4.2 获取 Linux 源码和已经编译好的文件系统
 
 从 [https://www.kernel.org](https://www.kernel.org) 下载最新的 Linux 源码。
@@ -261,7 +214,6 @@ $ gdb-multiarch path/to/linux/vmlinux
 - 请各位同学独立完成作业，任何抄袭行为都将使本次作业判为0分。
 - 编译内核，使用 QEMU 启动后，远程连接 GDB 进行调试，并尝试使用 GDB 的各项命令（如 `backtrace`, `finish`, `frame`, `info`, `break`, `display`, `next`, `layout` 等）。
 - 在学在浙大中提交 pdf 格式的实验报告，记录实验过程并截图（4.1-4.4），对每一步的命令以及结果进行必要的解释，记录遇到的问题和心得体会。
-<!-- - 编译内核并用 GDB + QEMU 调试，在内核初始化过程中设置断点，对内核的启动过程进行跟踪，并尝试使用gdb的各项命令（如 backtrace、finish、frame、info、break、display、next、layout 等）。 -->
 
 ## 思考题
 

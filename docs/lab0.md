@@ -156,10 +156,10 @@ $ make ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu-  # 编译 RISC-V 平台内核
 首先安装编译内核所需要的交叉编译工具链和用于构建程序的软件包
 
 ```bash
-$ sudo apt install gcc-riscv64-linux-gnu
-$ sudo apt install autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev \
-                 gawk build-essential bison flex texinfo gperf libtool patchutils bc \
-                 zlib1g-dev libexpat-dev git
+$ sudo apt install  gcc-riscv64-linux-gnu
+$ sudo apt install  autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev \
+                    gawk build-essential bison flex texinfo gperf libtool patchutils bc \
+                    zlib1g-dev libexpat-dev git
 ```
 
 接着是用于启动 riscv64 平台上的内核的模拟器 `qemu`
@@ -205,7 +205,8 @@ $ docker run --name oslab -it -v ${HOME}:/have-fun-debugging oslab:2021 bash    
 
 ### 4.2 获取 Linux 源码和已经编译好的文件系统
 
-从 [https://www.kernel.org](https://www.kernel.org) 下载最新的 Linux 源码。截至写作时，最新的 Linux 内核版本是 6.0rc5.
+从 [https://www.kernel.org](https://www.kernel.org) 下载最新的 Linux 源码。
+> 截至写作时，最新的 Linux 内核版本是 6.0rc5.
 
 并且使用 git 工具 clone [本仓库](https://gitee.com/zjusec/os22fall-stu)。其中已经准备好了根文件系统的镜像。
 
@@ -233,7 +234,7 @@ $ make ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- -j$(nproc)   # 编译
 ```bash
 $ qemu-system-riscv64 -nographic -machine virt -kernel path/to/linux/arch/riscv/boot/Image \
     -device virtio-blk-device,drive=hd0 -append "root=/dev/vda ro console=ttyS0" \
-    -bios default -drive file=rootfs.img,format=raw,id=hd0
+    -bios default -drive file=path/to/rootfs.img,format=raw,id=hd0
 ```
 退出 QEMU 的方法为：使用 Ctrl+A，**松开**后再按下 X 键即可退出 QEMU。
 
@@ -245,7 +246,7 @@ $ qemu-system-riscv64 -nographic -machine virt -kernel path/to/linux/arch/riscv/
 # Terminal 1
 $ qemu-system-riscv64 -nographic -machine virt -kernel path/to/linux/arch/riscv/boot/Image \
     -device virtio-blk-device,drive=hd0 -append "root=/dev/vda ro console=ttyS0" \
-    -bios default -drive file=rootfs.img,format=raw,id=hd0 -S -s
+    -bios default -drive file=path/to/rootfs.img,format=raw,id=hd0 -S -s
 
 # Terminal 2
 $ gdb-multiarch path/to/linux/vmlinux

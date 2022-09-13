@@ -1,4 +1,4 @@
-# Lab 0: GDB + QEMU 调试 64 位 RISC-V LINUX
+# Lab 0: GDB & QEMU 调试 64 位 RISC-V LINUX
 
 ## 1 实验目的
 <!-- - 了解容器的使用 -->
@@ -13,6 +13,7 @@
 
 - Ubuntu 22.04
 - Windows Subsystem for Linux 2
+- 其他可行的平台，但我们不提供技术支持
 
 ## 3 实验基础知识介绍
 
@@ -65,7 +66,7 @@ $ qemu-system-riscv64 \
 - `-device`: 指定要模拟的设备，可以通过命令 `qemu-system-riscv64 -device help` 查看可选择的设备，通过命令 `qemu-system-riscv64 -device <具体的设备>,help` 查看某个设备的命令选项
 - `-drive, file=<file_name>`: 使用 `file_name` 作为文件系统
 - `-S`: 启动时暂停CPU执行
-- `-s`: -gdb tcp::1234 的简写
+- `-s`: `-gdb tcp::1234` 的简写
 - `-bios default`: 使用默认的 OpenSBI firmware 作为 bootloader
 
 更多参数信息可以参考[这里](https://www.qemu.org/docs/master/system/index.html)
@@ -75,10 +76,10 @@ $ qemu-system-riscv64 \
 #### 什么是 GDB
 
 GNU 调试器（英语：GNU Debugger，缩写：gdb）是一个由 GNU 开源组织发布的、UNIX/LINUX 操作系统下的、基于命令行的、功能强大的程序调试工具。借助调试器，我们能够查看另一个程序在执行时实际在做什么（比如访问哪些内存、寄存器），在其他程序崩溃的时候可以比较快速地了解导致程序崩溃的原因。
-被调试的程序可以是和 gdb 在同一台机器上（本地调试，or native debug），也可以是不同机器上（远程调试， or remote debug）。
+被调试的程序可以和 GDB 运行在同一台机器上，并由 GDB 控制（本地调试 native debug）。也可以只和 `gdb-server` 运行在同一台机器上，由连接着 `gdb-server` 的 GDB 进行控制（远程调试 remote debug）。
 
-总的来说，gdb 可以有以下4个功能：
-
+<!-- 总的来说，GDB 有以下4个功能： -->
+GDB 的功能十分强大，我们经常在调试中用到的有:
 - 启动程序，并指定可能影响其行为的所有内容
 - 使程序在指定条件下停止
 - 检查程序停止时发生了什么
@@ -86,23 +87,23 @@ GNU 调试器（英语：GNU Debugger，缩写：gdb）是一个由 GNU 开源�
 
 #### GDB 基本命令介绍
 
-- (gdb) layout asm: 显示汇编代码
-- (gdb) start: 单步执行，运行程序，停在第一执行语句
-- (gdb) continue: 从断点后继续执行，简写 `c`
-- (gdb) next: 单步调试（逐过程，函数直接执行），简写 `n`
-- (gdb) step instruction: 执行单条指令，简写 `si`
-- (gdb) run: 重新开始运行文件（run-text：加载文本文件，run-bin：加载二进制文件），简写 `r`
-- (gdb) backtrace：查看函数的调用的栈帧和层级关系，简写 `bt`
-- (gdb) break 设置断点，简写 `b`
+- `(gdb) layout asm`: 显示汇编代码
+- `(gdb) start`: 单步执行，运行程序，停在第一执行语句
+- `(gdb) continue`: 从断点后继续执行，简写 `c`
+- `(gdb) next`: 单步调试（逐过程，函数直接执行），简写 `n`
+- `(gdb) step instruction`: 执行单条指令，简写 `si`
+- `(gdb) run`: 重新开始运行文件（run-text：加载文本文件，run-bin：加载二进制文件），简写 `r`
+- `(gdb) backtrace`：查看函数的调用的栈帧和层级关系，简写 `bt`
+- `(gdb) break` 设置断点，简写 `b`
     - 断在 `foo` 函数：`b foo`
     - 断在某地址: `b * 0x80200000`
-- (gdb) finish: 结束当前函数，返回到函数调用点
-- (gdb) frame: 切换函数的栈帧，简写 `f`
-- (gdb) print: 打印值及地址，简写 `p`
-- (gdb) info：查看函数内部局部变量的数值，简写 `i`
-    - 查看寄存器 ra 的值：`i r ra`
-- (gdb) display：追踪查看具体变量值
-- (gdb) x/4x <addr>: 以 16 进制打印 <addr> 处开始的 16 Bytes 内容
+- `(gdb) finish`: 结束当前函数，返回到函数调用点
+- `(gdb) frame`: 切换函数的栈帧，简写 `f`
+- `(gdb) print`: 打印值及地址，简写 `p`
+- `(gdb) info`: 查看函数内部局部变量的数值，简写 `i`
+    - 查看寄存器 ra 的值: `i r ra`
+- `(gdb) display`: 追踪查看具体变量值
+- `(gdb) x/4x <addr>`: 以 16 进制打印 `<addr>` 处开始的 16 Bytes 内容
 
 更多命令可以参考[100个gdb小技巧](https://wizardforcel.gitbooks.io/100-gdb-tips/content/)
 
@@ -121,7 +122,7 @@ GNU 调试器（英语：GNU Debugger，缩写：gdb）是一个由 GNU 开源�
 
 #### 编译工具
 
-`make` 是用于程序构建的重要工具，它的行为由当前目录或 `make -C` 指定目录下的 `Makefile` 来决定。更多有关 `Makefile` 的内容可以参考 [Learn Makefiles With the tastiest examples](https://makefiletutorial.com/)。下面用本次实验中坑内用到的 Linux 的编译命令作为示例：
+`make` 是用于程序构建的重要工具，它的行为由当前目录或 `make -C` 指定目录下的 `Makefile` 来决定。更多有关 `Makefile` 的内容可以参考 [Learn Makefiles With the tastiest examples](https://makefiletutorial.com/)。下面用本次实验中可能用到的用于编译 Linux 内核的编译命令作为示例：
 
 ```bash
 $ make help             # 查看make命令的各种参数解释
@@ -135,9 +136,9 @@ $ make -j<thread-count> # 使用 <thread-count> 个物理线程来进行多线�
 $ make -j4              # 编译当前平台的内核，-j4 为使用 4 线程进行多线程编译
 $ make -j$(nproc)       # 编译当前平台的内核，-j$(nproc) 为以全部机器硬件线程数进行多线程编译
 
-$ make <var-name>=<var-value>                                   # 在编译过程中将 <var-name> 变量的值手动设置为 <val-value>
-$ make ARCH=riscv defconfig                                     # 使用 RISC-V 平台的默认配置
-$ make ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- -j$(nproc)   # 编译 RISC-V 平台内核
+$ make <var-name>=<var-value>                       # 在编译过程中将 <var-name> 变量的值手动设置为 <val-value>
+$ make ARCH=riscv defconfig                         # 使用 RISC-V 平台的默认配置
+$ make ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu-  # 编译 RISC-V 平台内核
 ```
 
 我们可以手动为 `make` 指定变量的值，本次实验中用到的如下：
@@ -204,11 +205,11 @@ $ docker run --name oslab -it -v ${HOME}:/have-fun-debugging oslab:2021 bash    
 
 ### 4.2 获取 Linux 源码和已经编译好的文件系统
 
-从 [https://www.kernel.org](https://www.kernel.org) 下载最新的 Linux 源码。
+从 [https://www.kernel.org](https://www.kernel.org) 下载最新的 Linux 源码。截至写作时，最新的 Linux 内核版本是 6.0rc5.
 
 并且使用 git 工具 clone [本仓库](https://gitee.com/zjusec/os22fall-stu)。其中已经准备好了根文件系统的镜像。
 
-> 根文件系统为 Linux Kenrel 提供了基础的文件服务，在启动 Linux Kernel 时是必要的。
+> 根文件系统为 Linux Kernel 提供了基础的文件服务，在启动 Linux Kernel 时是必要的。
 
 ```bash
 $ git clone https://gitee.com/zjusec/os22fall-stu
@@ -220,10 +221,9 @@ rootfs.img  # 已经构建完成的根文件系统的镜像
 ### 4.3 编译 linux 内核
 
 ```bash
-$ pwd
-path/to/lab0/linux
-$ make ARCH=riscv CROSS_COMPILE=riscv64-unknown-linux-gnu- defconfig    # 生成配置
-$ make ARCH=riscv CROSS_COMPILE=riscv64-unknown-linux-gnu- -j$(nproc)   # 编译
+$ cd path/to/linux
+$ make ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- defconfig    # 使用默认配置
+$ make ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- -j$(nproc)   # 编译
 ```
 
 > 使用多线程编译一般会耗费大量内存，如果 `-j` 选项导致内存耗尽 (out of memory)，请尝试调低线程数，比如 `-j4`, `-j8` 等。
@@ -239,7 +239,7 @@ $ qemu-system-riscv64 -nographic -machine virt -kernel path/to/linux/arch/riscv/
 
 ### 4.5 使用 GDB 对内核进行调试
 
-这一步需要开启两个 Terminal Session，一个 Terminal 使用 QEMU 启动 Linux，另一个 Terminal 使用 GDB 与 QEMU 远程通信（使用 tcp::1234 端口）进行调试。
+> 这一步需要开启两个 Terminal Session，一个 Terminal 使用 QEMU 启动 Linux，另一个 Terminal 使用 GDB 与 QEMU 远程通信（使用 tcp::1234 端口）进行调试。
 
 ```bash
 # Terminal 1
@@ -248,7 +248,7 @@ $ qemu-system-riscv64 -nographic -machine virt -kernel path/to/linux/arch/riscv/
     -bios default -drive file=rootfs.img,format=raw,id=hd0 -S -s
 
 # Terminal 2
-$ riscv64-unknown-linux-gnu-gdb path/to/linux/vmlinux
+$ gdb-multiarch path/to/linux/vmlinux
 (gdb) target remote :1234   # 连接 qemu
 (gdb) b start_kernel        # 设置断点
 (gdb) continue              # 继续执行
@@ -258,13 +258,14 @@ $ riscv64-unknown-linux-gnu-gdb path/to/linux/vmlinux
 ## 5 实验任务与要求
 
 - 请各位同学独立完成作业，任何抄袭行为都将使本次作业判为0分。
-- 编译内核并用 GDB + QEMU 调试，在内核初始化过程中设置断点，对内核的启动过程进行跟踪，并尝试使用gdb的各项命令（如 backtrace、finish、frame、info、break、display、next、layout 等）。
+- 编译内核，使用 QEMU 启动后，远程连接 GDB 进行调试，并尝试使用 GDB 的各项命令（如 `backtrace`, `finish`, `frame`, `info`, `break`, `display`, `next`, `layout` 等）。
 - 在学在浙大中提交 pdf 格式的实验报告，记录实验过程并截图（4.1-4.4），对每一步的命令以及结果进行必要的解释，记录遇到的问题和心得体会。
+<!-- - 编译内核并用 GDB + QEMU 调试，在内核初始化过程中设置断点，对内核的启动过程进行跟踪，并尝试使用gdb的各项命令（如 backtrace、finish、frame、info、break、display、next、layout 等）。 -->
 
 ## 思考题
 
-1. 使用 `riscv64-unknown-elf-gcc` 编译单个 `.c` 文件
-2. 使用 `riscv64-unknown-elf-objdump` 反汇编 1 中得到的编译产物
+1. 使用 `riscv64-elf-gcc` 编译单个 `.c` 文件
+2. 使用 `riscv64-elf-objdump` 反汇编 1 中得到的编译产物
 3. 调试 Linux 时:
     1. 在 GDB 中查看汇编代码
     2. 在 0x80000000 处下断点

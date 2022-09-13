@@ -1,15 +1,18 @@
 # Lab 0: GDB + QEMU 调试 64 位 RISC-V LINUX
 
 ## 1 实验目的
-- 了解容器的使用
+<!-- - 了解容器的使用 -->
 - 使用交叉编译工具, 完成Linux内核代码编译
 - 使用QEMU运行内核
 - 熟悉GDB和QEMU联合调试
 
 ## 2 实验环境
 
-- Docker
-- 实验环境镜像[下载地址](https://pan.zju.edu.cn/share/b3cee13d5974178ad441a57c52)
+<!-- - Docker
+- 实验环境镜像[下载地址](https://pan.zju.edu.cn/share/b3cee13d5974178ad441a57c52) -->
+
+- Ubuntu 22.04
+- Windows Subsystem for Linux 2
 
 ## 3 实验基础知识介绍
 
@@ -21,7 +24,7 @@
 2. [GNU/Linux Command-Line Tools Summary](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/index.html)
 3. [Basics of UNIX](https://github.com/berkeley-scf/tutorial-unix-basics)
 
-### 3.2 Docker 使用基础
+<!-- ### 3.2 Docker 使用基础
 
 #### Docker 基本介绍
 
@@ -31,9 +34,9 @@ Docker 是一种利用容器（container）来进行创建、部署和运行应�
 
 #### Docker 安装
 
-请根据 [https://docs.docker.com/get-docker](https://docs.docker.com/get-docker) 自行在本机安装 Docker 环境。你可以从 [2 实验环境](#2) 中获得实验所需的环境，我们已经为你准备好了 RISC-V 工具链，以及 QEMU 模拟器，使用方法请参见 [4 实验步骤](#4)。
+请根据 [https://docs.docker.com/get-docker](https://docs.docker.com/get-docker) 自行在本机安装 Docker 环境。你可以从 [2 实验环境](#2) 中获得实验所需的环境，我们已经为你准备好了 RISC-V 工具链，以及 QEMU 模拟器，使用方法请参见 [4 实验步骤](#4)。 -->
 
-### 3.3 QEMU 使用基础
+### 3.2 QEMU 使用基础
 
 #### 什么是QEMU
 
@@ -67,7 +70,7 @@ $ qemu-system-riscv64 \
 
 更多参数信息可以参考[这里](https://www.qemu.org/docs/master/system/index.html)
 
-### 3.4 GDB 使用基础
+### 3.3 GDB 使用基础
 
 #### 什么是 GDB
 
@@ -104,7 +107,7 @@ GNU 调试器（英语：GNU Debugger，缩写：gdb）是一个由 GNU 开源�
 更多命令可以参考[100个gdb小技巧](https://wizardforcel.gitbooks.io/100-gdb-tips/content/)
 
 
-### 3.5 Linux 内核编译基础
+### 3.4 Linux 内核编译基础
 
 #### 交叉编译
 
@@ -112,35 +115,64 @@ GNU 调试器（英语：GNU Debugger，缩写：gdb）是一个由 GNU 开源�
 
 #### 内核配置
 
-内核配置是用于配置是否启用内核的各项特性，内核会提供一个名为 `defconfig` (即default configuration) 的默认配置，该配置文件位于各个架构目录的 `configs` 文件夹下，例如对于RISC-V而言，其默认配置文件为 `arch/riscv/configs/defconfig`。使用 `make ARCH=riscv defconfig` 命令可以在内核根目录下生成一个名为 `.config` 的文件，包含了内核完整的配置，内核在编译时会根据 `.config` 进行编译。配置之间存在相互的依赖关系，直接修改defconfig文件或者 `.config` 有时候并不能达到想要的效果。因此如果需要修改配置一般采用 `make ARCH=riscv menuconfig` 的方式对内核进行配置。
+内核配置是用于配置是否启用内核的各项特性，内核会提供一个名为 `defconfig` (即default configuration) 的默认配置，该配置文件位于各个架构目录的 `configs` 文件夹下，例如对于RISC-V而言，其默认配置文件为 `arch/riscv/configs/defconfig`。使用 `make ARCH=riscv defconfig` 命令可以在内核根目录下生成一个名为 `.config` 的文件，包含了内核完整的配置，内核在编译时会根据 `.config` 进行编译。
 
-#### 常见参数
+配置之间存在相互的依赖关系，直接修改defconfig文件或者 `.config` 有时候并不能达到想要的效果，或是给进一步内核配置带来同步问题。因此如果需要修改配置一般采用 `make ARCH=riscv menuconfig` 的方式对内核进行配置。
 
-- `ARCH` 指定架构，可选的值包括arch目录下的文件夹名，如 x86、arm、arm64 等，不同于 arm 和 arm64，32 位和 64 位的RISC-V共用 `arch/riscv` 目录，通过使用不同的 config 可以编译 32 位或 64 位的内核。
-- `CROSS_COMPILE` 指定使用的交叉编译工具链，例如指定 `CROSS_COMPILE=riscv64-unknown-linux-gnu-`，则编译时会采用 `riscv64-unknown-linux-gnu-gcc` 作为编译器，编译可以在 RISC-V 64 位平台上运行的 kernel。
+#### 编译工具
 
-#### 常用的 Linux 下的编译选项
+`make` 是用于程序构建的重要工具，它的行为由当前目录或 `make -C` 指定目录下的 `Makefile` 来决定。更多有关 `Makefile` 的内容可以参考 [Learn Makefiles With the tastiest examples](https://makefiletutorial.com/)。下面用本次实验中坑内用到的 Linux 的编译命令作为示例：
 
 ```bash
-$ make help         # 查看make命令的各种参数解释
+$ make help             # 查看make命令的各种参数解释
 
-$ make defconfig    # 使用当前平台的默认配置，在x86机器上会使用x86的默认配置
-$ make -j$(nproc)   # 编译当前平台的内核，-j$(nproc) 为以全部机器硬件线程数进行多线程编译
-$ make -j4          # 编译当前平台的内核，-j4 为使用 4 线程进行多线程编译
+$ make <target-name>    # 编译名为 <target-name> 的目标文件或目标任务 
+$ make defconfig        # 使用当前平台的默认配置，在x86机器上会使用x86的默认配置
+$ make clean            # 清除所有编译好的 object 文件
+$ make mrproper         # 删除所有编译产物和配置文件
 
+$ make -j<thread-count> # 使用 <thread-count> 个物理线程来进行多线程编译 
+$ make -j4              # 编译当前平台的内核，-j4 为使用 4 线程进行多线程编译
+$ make -j$(nproc)       # 编译当前平台的内核，-j$(nproc) 为以全部机器硬件线程数进行多线程编译
+
+$ make <var-name>=<var-value>                                   # 在编译过程中将 <var-name> 变量的值手动设置为 <val-value>
 $ make ARCH=riscv defconfig                                     # 使用 RISC-V 平台的默认配置
 $ make ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- -j$(nproc)   # 编译 RISC-V 平台内核
-
-$ make clean        # 清除所有编译好的 object 文件
 ```
+
+我们可以手动为 `make` 指定变量的值，本次实验中用到的如下：
+
+- `ARCH` 指定架构，可选的值包括 arch 目录下的文件夹名，如 x86、arm、arm64 等，不同于 arm 和 arm64，32 位和 64 位的RISC-V共用 `arch/riscv` 目录，通过使用不同的 config 可以编译 32 位或 64 位的内核。
+- `CROSS_COMPILE` 指定使用的交叉编译工具链，例如指定 `CROSS_COMPILE=riscv64-linux-gnu-`，则编译时会采用 `riscv64-linux-gnu-gcc` 作为编译器，编译在 RISC-V 64 位平台上运行的 Linux 内核。
+
 
 ## 4 实验步骤
 
 **在执行每一条命令前，请你对将要进行的操作进行思考，给出的命令不需要全部执行，并且不是所有的命令都可以无条件执行，请不要直接复制粘贴命令去执行。**
 
-### 4.1 搭建 Docker 环境
+### 4.1 搭建实验环境环境
 
-请根据 **3.2 Docker 使用基础** 安装 Docker 环境。然后**参考并理解**以下步骤，导入我们已经准备好的 Docker 镜像：
+首先安装编译内核所需要的交叉编译工具链和用于构建程序的软件包
+
+```bash
+$ sudo apt install gcc-riscv64-linux-gnu
+$ sudo apt install autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev \
+                 gawk build-essential bison flex texinfo gperf libtool patchutils bc \
+                 zlib1g-dev libexpat-dev git
+```
+
+接着是用于启动 riscv64 平台上的内核的模拟器 `qemu`
+
+```bash
+$ sudo apt install qemu-system-misc
+```
+
+我们还需要用 `gdb` 来对在 `qemu` 上运行的 Linux 内核进行调试
+```bash
+$ sudo apt install gdb-multiarch
+```
+
+<!-- 请根据 **3.2 Docker 使用基础** 安装 Docker 环境。然后**参考并理解**以下步骤，导入我们已经准备好的 Docker 镜像：
 
 ```bash
 # 导入docker镜像
@@ -168,7 +200,7 @@ $ docker exec -it oslab bash
 # 挂载本地目录
 # 把用户的 home 目录映射到 docker 镜像内的 have-fun-debugging 目录
 $ docker run --name oslab -it -v ${HOME}:/have-fun-debugging oslab:2021 bash    # -v 本地目录:容器内目录
-```
+``` -->
 
 ### 4.2 获取 Linux 源码和已经编译好的文件系统
 

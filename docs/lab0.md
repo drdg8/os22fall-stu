@@ -140,7 +140,7 @@ $ make ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu-  # 编译 RISC-V 平台内核
 
 > 如果你在使用 Mac with Apple Silicon, 请直接使用 Docker Desktop 进行课程实验。
 > Docker Desktop 的安装可以参考 [Docker Desktop for Apple silicon](https://docs.docker.com/desktop/mac/apple-silicon/)。
-> 之后使用 `docker pull ubuntu && docker run -it --name <some-name> ubuntu bash` 来启动一个运行在虚拟机上的 Ubuntu for ARM 容器，并将这个 Ubuntu 作为实验环境。
+> 之后使用 `docker pull ubuntu:22.04 && docker run -it --name <some-name> ubuntu:22.04 bash` 来启动一个运行在虚拟机上的 Ubuntu for ARM 容器，并将这个 Ubuntu 作为实验环境。
 
 首先安装编译内核所需要的交叉编译工具链和用于构建程序的软件包
 

@@ -9,7 +9,7 @@
 
 - Ubuntu 22.04
 - Windows Subsystem for Linux 2
-- Mac with Apple Silicon 正在进行测试，预计明天实验课前完成。将直接使用 docker 构建。
+- Mac with Apple Silicon
 - 其他可行的平台，但我们不提供技术支持
 
 ## 3 实验基础知识介绍
@@ -137,6 +137,10 @@ $ make ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu-  # 编译 RISC-V 平台内核
 **在执行每一条命令前，请你对将要进行的操作进行思考，给出的命令不需要全部执行，并且不是所有的命令都可以无条件执行，请不要直接复制粘贴命令去执行。**
 
 ### 4.1 搭建实验环境环境
+
+> 如果你在使用 Mac with Apple Silicon, 请直接使用 Docker Desktop 进行课程实验。
+> Docker Desktop 的安装可以参考 [Docker Desktop for Apple silicon](https://docs.docker.com/desktop/mac/apple-silicon/)。
+> 之后使用 `docker pull ubuntu && docker run -it --name <some-name> ubuntu bash` 来启动一个运行在虚拟机上的 Ubuntu for ARM 容器，并将这个 Ubuntu 作为实验环境。
 
 首先安装编译内核所需要的交叉编译工具链和用于构建程序的软件包
 

@@ -9,7 +9,7 @@
 
 - Ubuntu 22.04
 - Windows Subsystem for Linux 2
-- Mac with Apple Silicon 正在进行测试，预计明天实验课前完成
+- Mac with Apple Silicon 正在进行测试，预计明天实验课前完成。将直接使用 docker 构建。
 - 其他可行的平台，但我们不提供技术支持
 
 ## 3 实验基础知识介绍

@@ -7,8 +7,8 @@
 
 ## 2 实验环境
 
-- Ubuntu 22.04
-- Windows Subsystem for Linux 2
+- [Ubuntu 22.04.1 LTS](https://ubuntu.com/download/desktop/thank-you?version=22.04.1&architecture=amd64)
+- [Ubuntu 22.04.1 LTS Windows Subsystem for Linux 2](https://www.microsoft.com/store/productId/9PN20MSR04DW)
 - Mac with Apple Silicon
 - 其他可行的平台，但我们不提供技术支持
 

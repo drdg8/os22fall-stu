@@ -223,8 +223,8 @@ $ gdb-multiarch path/to/linux/vmlinux
 
 ## 思考题
 
-1. 使用 `riscv64-elf-gcc` 编译单个 `.c` 文件
-2. 使用 `riscv64-elf-objdump` 反汇编 1 中得到的编译产物
+1. 使用 `riscv64-linux-gnu-gcc` 编译单个 `.c` 文件
+2. 使用 `riscv64-linux-gnu-objdump` 反汇编 1 中得到的编译产物
 3. 调试 Linux 时:
     1. 在 GDB 中查看汇编代码
     2. 在 0x80000000 处下断点

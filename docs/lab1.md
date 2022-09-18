@@ -253,7 +253,7 @@ ffffffe000000190 t debug_kernel
 ## 4 实验步骤
 
 ### 4.1 准备工程
-从 [repo](https://gitee.com/zjusec/os22fall-stu) 同步实验代码框架， 参考 Lab0 中，将工程代码映射进容器中。这样就可以方便的在本地开发，同时使用容器内的工具进行编译。
+从 [repo](https://github.com/ZJU-SEC/os22fall-stu) 同步实验代码框架， 参考 Lab0 中，将工程代码映射进容器中。这样就可以方便的在本地开发，同时使用容器内的工具进行编译。
 
 ```
 ├── arch

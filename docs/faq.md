@@ -5,6 +5,7 @@
 - [为什么我不能在 GDB 中使用 `next` 或者 `finish` ?](#3)
 - [为什么我在内核中添加了 debug 信息，但是还是没法使用 `next` 或者 `finish` ?](#4)
 
+首先需要明确的是，本次实验中的所有操作都不应该经由 Windows 中的文件系统，请直接在 **虚拟机或 Linux 物理机** 中直接完成。
 
 ## 1 为什么我把 Linux 源码放在共享文件夹或 wsl2 的 `/mnt` 下编译不出来？
 
@@ -35,3 +36,14 @@ Breakpoint 1, 0x000000008000babe in _never_gonna_give_you_up ()
 ## 4 为什么我在内核中添加了 debug 信息，但是还是没法使用 `next` 或者 `finish` ?
 
 可能你在配置内核时已经添加了调试信息，但是并没有在 **QEMU运行的其他部分** 添加。例如 SRAM 中对 `march` 进行配置的过程，以及 opensbi 中的所有部分，都缺少调试信息。所以才无法按照函数的层级进行调试。我们在实验中没有对这部分内容作要求，可以自行 Google 探索。
+
+## 5  为什么我在 `start_kernel` 处不能正常使用断点？
+
+在以下版本中，这个断点能够正常被打上并触发
+
+```
+GNU gdb (Ubuntu 12.0.90-0ubuntu1) 12.0.90
+QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.3)
+RISC-V GNU Toolchain (Ubuntu 11.2.0-16ubuntu1) 11.2.0
+linux-6.0-rc5/linux-5.19.9
+```

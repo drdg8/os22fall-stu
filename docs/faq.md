@@ -4,6 +4,8 @@
 - [为什么 QEMU & GDB 使用 `si` 单指令调试遇到模式切换时无法正常执行?](#2)
 - [为什么我不能在 GDB 中使用 `next` 或者 `finish` ?](#3)
 - [为什么我在内核中添加了 debug 信息，但是还是没法使用 `next` 或者 `finish` ?](#4)
+- [为什么我在 `start_kernel` 处不能正常使用断点？](#5)
+- [为什么 Lab1 中提示 `riscv64-elf-unknown-gcc: No such file or directory` ?](##6)
 
 首先需要明确的是，本次实验中的所有操作都不应该经由 Windows 中的文件系统，请直接在 **虚拟机或 Linux 物理机** 中直接完成。
 

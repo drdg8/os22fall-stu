@@ -47,3 +47,7 @@ QEMU emulator version 6.2.0 (Debian 1:6.2+dfsg-2ubuntu6.3)
 RISC-V GNU Toolchain (Ubuntu 11.2.0-16ubuntu1) 11.2.0
 linux-6.0-rc5/linux-5.19.9
 ```
+
+## 6 为什么 Lab1 中提示 `riscv64-elf-unknown-gcc: No such file or directory` ?
+
+我们更新了工具链，请使用 `git pull` 来更新仓库信息，然后使用 `make clean` 清除原先的编译产物。

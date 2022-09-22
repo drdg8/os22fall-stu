@@ -351,6 +351,35 @@ sbi_ecall 函数中，需要完成以下内容：
 
 补充完 `read_csr` 这个宏定义。这里有相关[示例](#_2)。
 
+## 5 其他架构的交叉编译——以 Aarch64 为例
+
+### 5.1 交叉编译工具链的安装
+那么如何安装不同架构的交叉编译工具链呢？最简单的方法是用 Ubuntu 自带的软件包管理器 `apt`，先找到有什么交叉编译工具可以装
+```
+# 搜索包含 aarch64 的软件包，一般是交叉编译工具
+apt-cache search aarch64
+...
+# 搜索结果中如果有 gcc-xxx-linux-gnu，一般需求下装它就行了（具体情况具体分析哈）
+sudo apt install gcc-aarch64-linux-gnu
+```
+现在我们有 aarch64 的交叉编译工具链了，开始编译吧！
+
+### 5.2 怎么获得编译过程的中间产物
+**注意：这里说的“编译过程”包括预处理、编译、汇编、链接**
+
+`gcc`编译命令和选项在不同架构之间都大同小异，一般遵循以下形式（类比 lab0 做过的 riscv64 即可）
+```
+some-certain-arch-gcc ARCH=xxx CROSS_COMPILE=some-certain-arch- <options> <files>
+```
+
+比如，想获得 kernel 中 `xxx.c` 的预处理产物（回忆一下预处理做了什么）`xxx.i`，我们可以
+```
+# 先 config
+aarch64-linux-gnu-gcc ARCH=aarch64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
+
+# 然后指定要生成的文件
+aarch64-linux-gnu-gcc ARCH=aarch64 CROSS_COMPILE=aarch64-linux-gnu- path/to/file/xxx.i
+```
 
 ## 思考题
 

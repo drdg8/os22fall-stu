@@ -253,7 +253,7 @@ ffffffe000000190 t debug_kernel
 ## 4 实验步骤
 
 ### 4.1 准备工程
-从 [repo](https://gitee.com/zjusec/os22fall-stu) 同步实验代码框架， 参考 Lab0 中，将工程代码映射进容器中。这样就可以方便的在本地开发，同时使用容器内的工具进行编译。
+从 [repo](https://gitee.com/zjusec/os22fall-stu) 同步实验代码框架。
 
 ```
 ├── arch
@@ -380,13 +380,14 @@ aarch64-linux-gnu-gcc ARCH=aarch64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
 # 然后指定要生成的文件
 aarch64-linux-gnu-gcc ARCH=aarch64 CROSS_COMPILE=aarch64-linux-gnu- path/to/file/xxx.i
 ```
+以上是直接用交叉编译工具的方法，本实验可以使用课件中给出的 `make` 进行编译。
 
 ## 思考题
 
 1. 请总结一下 RISC-V 的 calling convention，并解释 Caller / Callee Saved Register 有什么区别？
-2. 编译之后，通过 System.map 查看 vmlinux.lds 中自定义符号的值。
-3. 用 `read_csr` 宏读取 `sstatus` 寄存器的值，对照 RISC-V 手册解释其含义。
-4. 用 `write_csr` 宏向 `sscratch` 寄存器写入数据，并验证是否写入成功。
+2. 编译之后，通过 System.map 查看 vmlinux.lds 中自定义符号的值（截图）。
+3. 用 `read_csr` 宏读取 `sstatus` 寄存器的值，对照 RISC-V 手册解释其含义（截图）。
+4. 用 `write_csr` 宏向 `sscratch` 寄存器写入数据，并验证是否写入成功（截图）。
 
 5. Detail your steps about how to get `arch/arm64/kernel/sys.i`
 6. Find system call table of Linux v6.0 for `ARM32`, `RISC-V(32 bit)`, `RISC-V(64 bit)`, `x86(32 bit)`, `x86_64`
@@ -397,4 +398,6 @@ Run an ELF file and cat `/proc/PID /maps` to give its memory layout.
 5, 6, 7 need to have screenshots.
 
 ## 作业提交
+
+实验报告需要包含对所有思考题的回答，有截图要求的要截图。
 同学需要提交实验报告以及整个工程代码。在提交前请使用 `make clean` 清除所有构建产物。

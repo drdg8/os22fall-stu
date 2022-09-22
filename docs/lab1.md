@@ -359,11 +359,11 @@ sbi_ecall 函数中，需要完成以下内容：
 3. 用 `read_csr` 宏读取 `sstatus` 寄存器的值，对照 RISC-V 手册解释其含义。
 4. 用 `write_csr` 宏向 `sscratch` 寄存器写入数据，并验证是否写入成功。
 
-5. Detail your steps about how to get arch/arm64/kernel/sys.i
-6. Find system call table of Linux v6.0 for ARM32, RISC-V(32 bit), RISC-V(64 bit), x86(32 bit), x86_64
+5. Detail your steps about how to get `arch/arm64/kernel/sys.i`
+6. Find system call table of Linux v6.0 for `ARM32`, `RISC-V(32 bit)`, `RISC-V(64 bit)`, `x86(32 bit)`, `x86_64`
 List source code file, the whole system call table with macro expanded, screenshot every step.
 7. Explain what is ELF file? Try readelf and objdump command on an ELF file, give screenshot of the output.
-Run an ELF file and cat /proc/PID /maps to give its memory layout.
+Run an ELF file and cat `/proc/PID /maps` to give its memory layout.
 
 5, 6, 7 need to have screenshots.
 

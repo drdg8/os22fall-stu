@@ -367,9 +367,9 @@ sudo apt install gcc-aarch64-linux-gnu
 ### 5.2 怎么获得编译过程的中间产物
 **注意：这里说的“编译过程”包括预处理、编译、汇编、链接**
 
-`gcc`编译命令和选项在不同架构之间都大同小异，一般遵循以下形式（类比 lab0 做过的 riscv64 即可）
+对于 Linux kernel，编译命令和选项在不同架构之间都大同小异，一般遵循以下形式（类比 lab0 做过的 riscv64 即可）
 ```
-some-certain-arch-gcc ARCH=xxx CROSS_COMPILE=some-certain-arch- <options> <files>
+make ARCH=xxx CROSS_COMPILE=some-certain-arch- <options> <files>
 ```
 
 比如，想获得 kernel 中 `xxx.c` 的预处理产物（回忆一下预处理做了什么）`xxx.i`，我们可以
@@ -380,7 +380,8 @@ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
 # 然后指定要生成的文件
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- path/to/file/xxx.i
 ```
-以上是直接用交叉编译工具的方法，本实验可以使用课件中给出的 `make` 进行编译。
+
+课件里也给出了 `make` 工具。
 
 ## 思考题
 

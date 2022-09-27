@@ -387,8 +387,8 @@ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- path/to/file/xxx.i
 
 1. 请总结一下 RISC-V 的 calling convention，并解释 Caller / Callee Saved Register 有什么区别？
 2. 编译之后，通过 System.map 查看 vmlinux.lds 中自定义符号的值（截图）。
-3. 用 `read_csr` 宏读取 `sstatus` 寄存器的值，对照 RISC-V 手册解释其含义（截图）。
-4. 用 `write_csr` 宏向 `sscratch` 寄存器写入数据，并验证是否写入成功（截图）。
+3. 用 `csr_read` 宏读取 `sstatus` 寄存器的值，对照 RISC-V 手册解释其含义（截图）。
+4. 用 `csr_write` 宏向 `sscratch` 寄存器写入数据，并验证是否写入成功（截图）。
 
 5. Detail your steps about how to get `arch/arm64/kernel/sys.i`
 6. Find system call table of Linux v6.0 for `ARM32`, `RISC-V(32 bit)`, `RISC-V(64 bit)`, `x86(32 bit)`, `x86_64`

@@ -367,27 +367,28 @@ sudo apt install gcc-aarch64-linux-gnu
 ### 5.2 怎么获得编译过程的中间产物
 **注意：这里说的“编译过程”包括预处理、编译、汇编、链接**
 
-`gcc`编译命令和选项在不同架构之间都大同小异，一般遵循以下形式（类比 lab0 做过的 riscv64 即可）
+对于 Linux kernel，编译命令和选项在不同架构之间都大同小异，一般遵循以下形式（类比 lab0 做过的 riscv64 即可）
 ```
-some-certain-arch-gcc ARCH=xxx CROSS_COMPILE=some-certain-arch- <options> <files>
+make ARCH=xxx CROSS_COMPILE=some-certain-arch- <options> <files>
 ```
 
 比如，想获得 kernel 中 `xxx.c` 的预处理产物（回忆一下预处理做了什么）`xxx.i`，我们可以
 ```
 # 先 config
-aarch64-linux-gnu-gcc ARCH=aarch64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
 
 # 然后指定要生成的文件
-aarch64-linux-gnu-gcc ARCH=aarch64 CROSS_COMPILE=aarch64-linux-gnu- path/to/file/xxx.i
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- path/to/file/xxx.i
 ```
-以上是直接用交叉编译工具的方法，本实验可以使用课件中给出的 `make` 进行编译。
+
+课件里也给出了 `make` 工具。
 
 ## 思考题
 
 1. 请总结一下 RISC-V 的 calling convention，并解释 Caller / Callee Saved Register 有什么区别？
 2. 编译之后，通过 System.map 查看 vmlinux.lds 中自定义符号的值（截图）。
-3. 用 `read_csr` 宏读取 `sstatus` 寄存器的值，对照 RISC-V 手册解释其含义（截图）。
-4. 用 `write_csr` 宏向 `sscratch` 寄存器写入数据，并验证是否写入成功（截图）。
+3. 用 `csr_read` 宏读取 `sstatus` 寄存器的值，对照 RISC-V 手册解释其含义（截图）。
+4. 用 `csr_write` 宏向 `sscratch` 寄存器写入数据，并验证是否写入成功（截图）。
 
 5. Detail your steps about how to get `arch/arm64/kernel/sys.i`
 6. Find system call table of Linux v6.0 for `ARM32`, `RISC-V(32 bit)`, `RISC-V(64 bit)`, `x86(32 bit)`, `x86_64`

@@ -1,6 +1,6 @@
 # 浙江大学22年秋操作系统实验
 
-本[仓库](https://gitee.com/zjusec/os22fall-stu)是浙江大学22年秋**操作系统**课程的教学仓库，包含在操作系统课程上所有的实验文档和公开代码。仓库目录结构：
+本[仓库](https://github.com/ZJU-SEC/os22fall-stu)是浙江大学22年秋**操作系统**课程的教学仓库，包含在操作系统课程上所有的实验文档和公开代码。仓库目录结构：
 
 ```bash
 ├── README.md
@@ -9,7 +9,7 @@
 └── src/        # 公开代码
 ```
 
-实验文档已经部署在了[gitee pages](https://zjusec.gitee.io/os22fall-stu/)上，方便大家阅读。
+实验文档已经部署在了[gitee pages](https://zju-sec.github.io/os22fall-stu/)上，方便大家阅读。
 
 
 ## 本地渲染文档

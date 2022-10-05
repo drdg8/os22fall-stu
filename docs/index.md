@@ -9,7 +9,7 @@
 └── src/        # 公开代码
 ```
 
-实验文档已经部署在了[gitee pages](https://zju-sec.github.io/os22fall-stu/)上，方便大家阅读。
+实验文档已经部署在了[GitHub Pages](https://zju-sec.github.io/os22fall-stu/)上，方便大家阅读。
 
 
 ## 本地渲染文档
@@ -18,7 +18,7 @@
 
 ```bash
 $ pip3 install mkdocs-material                      # 安装 mkdocs-material
-$ git clone https://gitee.com/zjusec/os22fall-stu       # clone 本 repo
+$ git clone https://github.com/ZJU-SEC/os22fall-stu # clone 本 repo
 $ mkdocs serve                                      # 本地渲染
 INFO     -  Building documentation...
 INFO     -  Cleaning site directory

@@ -253,7 +253,9 @@ ffffffe000000190 t debug_kernel
 ## 4 实验步骤
 
 ### 4.1 准备工程
-从 [repo](https://github.com/ZJU-SEC/os22fall-stu) 同步实验代码框架， 参考 Lab0 中，将工程代码映射进容器中。这样就可以方便的在本地开发，同时使用容器内的工具进行编译。
+
+从 [repo](https://github.com/ZJU-SEC/os22fall-stu) 同步实验代码框架。
+
 
 ```
 ├── arch
@@ -351,13 +353,55 @@ sbi_ecall 函数中，需要完成以下内容：
 
 补充完 `read_csr` 这个宏定义。这里有相关[示例](#_2)。
 
+## 5 其他架构的交叉编译——以 Aarch64 为例
+
+### 5.1 交叉编译工具链的安装
+那么如何安装不同架构的交叉编译工具链呢？最简单的方法是用 Ubuntu 自带的软件包管理器 `apt`，先找到有什么交叉编译工具可以装
+```
+# 搜索包含 aarch64 的软件包，一般是交叉编译工具
+apt-cache search aarch64
+...
+# 搜索结果中如果有 gcc-xxx-linux-gnu，一般需求下装它就行了（具体情况具体分析哈）
+sudo apt install gcc-aarch64-linux-gnu
+```
+现在我们有 aarch64 的交叉编译工具链了，开始编译吧！
+
+### 5.2 怎么获得编译过程的中间产物
+**注意：这里说的“编译过程”包括预处理、编译、汇编、链接**
+
+对于 Linux kernel，编译命令和选项在不同架构之间都大同小异，一般遵循以下形式（类比 lab0 做过的 riscv64 即可）
+```
+make ARCH=xxx CROSS_COMPILE=some-certain-arch- <options> <files>
+```
+
+比如，想获得 kernel 中 `xxx.c` 的预处理产物（回忆一下预处理做了什么）`xxx.i`，我们可以
+```
+# 先 config
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
+
+# 然后指定要生成的文件
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- path/to/file/xxx.i
+```
+
+课件里也给出了 `make` 工具。
 
 ## 思考题
 
 1. 请总结一下 RISC-V 的 calling convention，并解释 Caller / Callee Saved Register 有什么区别？
-2. 编译之后，通过 System.map 查看 vmlinux.lds 中自定义符号的值。
-3. 用 `read_csr` 宏读取 `sstatus` 寄存器的值，对照 RISC-V 手册解释其含义。
-4. 用 `write_csr` 宏向 `sscratch` 寄存器写入数据，并验证是否写入成功。
+2. 编译之后，通过 System.map 查看 vmlinux.lds 中自定义符号的值（截图）。
+3. 用 `csr_read` 宏读取 `sstatus` 寄存器的值，对照 RISC-V 手册解释其含义（截图）。
+4. 用 `csr_write` 宏向 `sscratch` 寄存器写入数据，并验证是否写入成功（截图）。
+
+5. Detail your steps about how to get `arch/arm64/kernel/sys.i`
+6. Find system call table of Linux v6.0 for `ARM32`, `RISC-V(32 bit)`, `RISC-V(64 bit)`, `x86(32 bit)`, `x86_64`
+List source code file, the whole system call table with macro expanded, screenshot every step.
+7. Explain what is ELF file? Try readelf and objdump command on an ELF file, give screenshot of the output.
+Run an ELF file and cat `/proc/PID /maps` to give its memory layout.
+
+5, 6, 7 need to have screenshots.
 
 ## 作业提交
+
+实验报告需要包含对所有思考题的回答，有截图要求的要截图。
+
 同学需要提交实验报告以及整个工程代码。在提交前请使用 `make clean` 清除所有构建产物。

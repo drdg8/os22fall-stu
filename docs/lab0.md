@@ -167,7 +167,7 @@ $ sudo apt install gdb-multiarch
 从 [https://www.kernel.org](https://www.kernel.org) 下载最新的 Linux 源码。
 > 截至写作时，最新的 Linux 内核版本是 6.0rc5.
 
-并且使用 git 工具 clone [本仓库](https://gitee.com/zjusec/os22fall-stu)。其中已经准备好了根文件系统的镜像。
+并且使用 git 工具 clone [本仓库](https://github.com/ZJU-SEC/os22fall-stu)。其中已经准备好了根文件系统的镜像。
 
 > 根文件系统为 Linux Kernel 提供了基础的文件服务，在启动 Linux Kernel 时是必要的。
 

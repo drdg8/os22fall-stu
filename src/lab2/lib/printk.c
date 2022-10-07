@@ -55,7 +55,7 @@ static int vprintfmt(void(*putch)(char), const char *fmt, va_list vl) {
                     unsigned long num = longarg ? va_arg(vl, long) : va_arg(vl, int);
                     int bits = 0;
                     char decchar[25] = {'0', 0};
-                    for (long tmp = num; tmp; bits++) {
+                    for (unsigned long tmp = num; tmp; bits++) {
                         decchar[bits] = (tmp % 10) + '0';
                         tmp /= 10;
                     }

@@ -13,3 +13,4 @@ all:$(OBJ)
 
 clean:
 	$(shell rm *.o 2>/dev/null)
+

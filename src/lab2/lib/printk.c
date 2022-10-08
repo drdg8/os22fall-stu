@@ -93,7 +93,7 @@ static int vprintfmt(void(*putch)(char), const char *fmt, va_list vl) {
         else if(*fmt == '%') {
           in_format = 1;
         }
-        else {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+        else{
             putch(*fmt);
             pos++;
         }

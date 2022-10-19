@@ -7,7 +7,7 @@
 * 调用 OpenSBI 提供的接口，完成对时钟中断事件的设置。
 
 ## 2 实验环境
-* Docker in Lab0
+* Environment in previous labs
 
 ## 3 背景知识
 ### 3.0 前言

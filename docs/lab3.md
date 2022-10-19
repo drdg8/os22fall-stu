@@ -176,7 +176,7 @@ void dummy();
                         │    stack    │
                         │             │
                         │             │
-                  sp ──►├──────┬──────┤
+                  sp ──►├───────┬──────┤
                         │      │      │
                         │      ▼      │
                         │             │
@@ -187,13 +187,13 @@ void dummy();
                         │             │
                         │             │
                         │             │
-                        ├─────────────┤
+                        ├──────────────┤
                         │             │
                         │             │
                         │ task_struct │
                         │             │
                         │             │
-                        └─────────────┘◄─── Low Address
+                        └──────────────┘◄─── Low Address
     ```
 * 当我们的 OS run 起来的时候, 其本身就是一个线程 `idle 线程`, 但是我们并没有为它设计好 `task_struct`。所以第一步我们要为 `idle` 设置 `task_struct`。并将 `current`, `task[0]` 都指向 `idle`。
 * 为了方便起见, 我们将 `task[1]` ~ `task[NR_TASKS - 1]`, 全部初始化,  这里和 `idle` 设置的区别在于要为这些线程设置 `thread_struct` 中的 `ra` 和 `sp`.

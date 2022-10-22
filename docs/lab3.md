@@ -176,7 +176,7 @@ void dummy();
                         │    stack    │
                         │             │
                         │             │
-                  sp ──►├───────┬──────┤
+                  sp ──►├──────┬──────┤
                         │      │      │
                         │      ▼      │
                         │             │
@@ -187,13 +187,13 @@ void dummy();
                         │             │
                         │             │
                         │             │
-                        ├──────────────┤
+                        ├─────────────┤
                         │             │
                         │             │
                         │ task_struct │
                         │             │
                         │             │
-                        └──────────────┘◄─── Low Address
+                        └─────────────┘◄─── Low Address
     ```
 * 当我们的 OS run 起来的时候, 其本身就是一个线程 `idle 线程`, 但是我们并没有为它设计好 `task_struct`。所以第一步我们要为 `idle` 设置 `task_struct`。并将 `current`, `task[0]` 都指向 `idle`。
 * 为了方便起见, 我们将 `task[1]` ~ `task[NR_TASKS - 1]`, 全部初始化,  这里和 `idle` 设置的区别在于要为这些线程设置 `thread_struct` 中的 `ra` 和 `sp`.
@@ -344,7 +344,7 @@ void dummy();
     - 在`proc.c`中使用 `#ifdef` , `#endif` 来控制代码。 修改顶层Makefile为 `CFLAG = ${CF} ${INCLUDE} -DSJF` 或 `CFLAG = ${CF} ${INCLUDE} -DPRIORITY` (作业提交的时候 `Makefile` 选择任意一个都可以)
 
 - 短作业优先调度输出示例 (为了便于展示, 这里一共只初始化了 4 个线程) 同学们最后提交时需要 保证 NR_TASKS 为 32 不变
-    ```bash
+    ```plaintext
     OpenSBI v0.9
       ____                    _____ ____ _____
      / __ \                  / ____|  _ \_   _|
@@ -401,7 +401,7 @@ void dummy();
 
     ```
 - 优先级调度输出示例
-    ```bash
+    ```plaintext
     OpenSBI v0.9
       ____                    _____ ____ _____
      / __ \                  / ____|  _ \_   _|

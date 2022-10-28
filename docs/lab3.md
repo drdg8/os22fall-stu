@@ -467,6 +467,15 @@ void dummy();
     b. 安装 lkm 和 remove lkm 的命令分别是什么? 对内核进行了哪些改动?
     
     c. 使用哪个内核函数可以输出到内核 log?
+    
+    > 特别地，如果你正在使用 `WSL2` 上的 `Ubuntu 22.04`，由于官方和浙大源中都没有给出对应版本的 `linux-headers`，所以需要我们从 Linux 源码开始编译 kernel module。你可以从微软的官方 [WSL2 Kernel Repository](https://github.com/microsoft/WSL2-Linux-Kernel) 中获取到你正在使用的 WSL2 内核版本对应的源码。
+
+    > 例如我通过 `uname -r` 得到的结果是 `5.10.16.3-microsoft-standard-WSL2`，就需要从这个 Repo 的 [tags](https://github.com/microsoft/WSL2-Linux-Kernel#:~:text=8%20branches-,3%2C144%20tags,-Go%20to%20file) 中找到 [linux-msft-wsl-5.10.16.3](https://github.com/microsoft/WSL2-Linux-Kernel/tags#:~:text=linux%2Dmsft%2Dwsl%2D5.10.16.3) 的源码并下载解压。
+
+    > 在编译 `lkm` 之前，需要首先编译 Linux 内核，具体请参照这个[高亮的部分](https://github.com/microsoft/WSL2-Linux-Kernel#:~:text=Instructions%20for%20building,Microsoft/config%2Dwsl)。
+
+    > 在编译完成以后，你需要阅读我们给出的 `lkm` 的 `Makefile` 来理解其具体行为，并将编译进行的目录指定为我们刚刚的内核目录（即是刚刚我们解压完成的名为 `WSL2-Linux-Kernel-linux-msft-wsl-5.10.16.3`，并进行了内核编译的目录），注意不用带上后面的 `build` 子目录路径，即可完成编译。
+
 
 ## 作业提交
 同学需要提交实验报告以及整个工程代码。在提交前请使用 `make clean` 清除所有构建产物。

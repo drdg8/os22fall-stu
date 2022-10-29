@@ -472,7 +472,7 @@ void dummy();
 
     > 例如我通过 `uname -r` 得到的结果是 `5.10.16.3-microsoft-standard-WSL2`，就需要从这个 Repo 的 [tags](https://github.com/microsoft/WSL2-Linux-Kernel#:~:text=8%20branches-,3%2C144%20tags,-Go%20to%20file) 中找到 [linux-msft-wsl-5.10.16.3](https://github.com/microsoft/WSL2-Linux-Kernel/tags#:~:text=linux%2Dmsft%2Dwsl%2D5.10.16.3) 的源码并下载解压。
 
-    > 在编译 `lkm` 之前，需要首先编译 Linux 内核，具体请参照这个[高亮的部分](https://github.com/microsoft/WSL2-Linux-Kernel#:~:text=Instructions%20for%20building,Microsoft/config%2Dwsl)。
+    > 在编译 `lkm` 之前，需要首先编译 Linux 内核，我们可以使用命令 `zcat /proc/config.gz > .config` 来将当前运行的内核的配置直接复制到内核仓库中，然后直接进行 `make`。如果在编译的过程中遇到了部分选项没有配置的提示，可以一直敲回车来选择默认选项。
 
     > 在编译完成以后，你需要阅读我们给出的 `lkm` 的 `Makefile` 来理解其具体行为，并将编译进行的目录指定为我们刚刚的内核目录（即是刚刚我们解压完成的名为 `WSL2-Linux-Kernel-linux-msft-wsl-5.10.16.3`，并进行了内核编译的目录），注意不用带上后面的 `build` 子目录路径，即可完成编译。
 

@@ -86,6 +86,9 @@ _traps:
 
     ld x2, 16(sp)
 
+    add sp, sp, 33*8
+
+
     # 4. return from trap
     sret
 

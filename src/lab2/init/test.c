@@ -4,5 +4,7 @@
 // Please do not modify
 
 void test() {
-    while (1);
+    while (1){
+        printk("kernal is running!\n");
+    }
 }

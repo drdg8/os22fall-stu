@@ -256,8 +256,8 @@ relocate:
     # flush tlb
     sfence.vma zero, zero
 		
-		# flush icache
-		fence.i
+    # flush icache
+    fence.i
 		
     ret
 
@@ -333,8 +333,8 @@ void setup_vm_final(void) {
     // flush TLB
     asm volatile("sfence.vma zero, zero");
   
-  	// flush icache
-  	asm volatile("fence.i")
+    // flush icache
+    asm volatile("fence.i")
     return;
 }
 

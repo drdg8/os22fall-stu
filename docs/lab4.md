@@ -255,7 +255,10 @@ relocate:
     
     # flush tlb
     sfence.vma zero, zero
-
+		
+		# flush icache
+		fence.i
+		
     ret
 
     .section .bss.stack
@@ -268,8 +271,10 @@ boot_stack:
 
 
 > Hint 1: `sfence.vma` 指令用于刷新 TLB
-> 
-> Hint 2: 在 set satp 前，我们只可以使用**物理地址**来打断点。设置 satp 之后，才可以使用虚拟地址打断点，同时之前设置的物理地址断点也会失效，需要删除。
+>
+> Hint 2: `fence.i` 指令用于刷新 icache
+>
+> Hint 3: 在 set satp 前，我们只可以使用**物理地址**来打断点。设置 satp 之后，才可以使用虚拟地址打断点，同时之前设置的物理地址断点也会失效，需要删除
 
 
 
@@ -327,6 +332,9 @@ void setup_vm_final(void) {
 
     // flush TLB
     asm volatile("sfence.vma zero, zero");
+  
+  	// flush icache
+  	asm volatile("fence.i")
     return;
 }
 

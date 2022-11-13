@@ -8,6 +8,8 @@
   - [6 为什么 Lab1 中提示 `riscv64-elf-unknown-gcc: No such file or directory` ?](#6-为什么-lab1-中提示-riscv64-elf-unknown-gcc-no-such-file-or-directory-)
   - [7 为什么 Lab1 中我的 C 语言函数的参数无法正确传入？](#7-为什么-lab1-中我的-c-语言函数的参数无法正确传入)
   - [8 为什么我把 `puti` 的参数类型替换成 `uint64` 还是只能打印出 32bits 的值？](#8-为什么我把-puti-的参数类型替换成-uint64-还是只能打印出-32bits-的值)
+  - [9 为什么我的 QEMU 会 “卡住”？](#9-为什么我的-QEMU-会-“卡住”？)
+  - [10 为什么我在设置 `satp` 后导致了 `gdb-multiarch` 的 `segmentation fault` ?](#10-为什么我在设置-satp-后导致了-gdb-multiarch-的-segmentation-fault)
 
 首先需要明确的是，本次实验中的所有操作都不应该经由 Windows 中的文件系统，请直接在 **虚拟机或 Linux 物理机** 中直接完成。
 
@@ -63,3 +65,11 @@ linux-6.0-rc5/linux-5.19.9
 ## 8 为什么我把 `puti` 的参数类型替换成 `uint64` 还是只能打印出 32bits 的值？
 
 **强烈建议**把 `uint64` 的定义替换为 `unsigned long long` 而不是现在使用的 `unsigned long`，因为前者在32位和64位的平台上的长度都是64位，而后者在32位的平台上是32位的。
+
+## 9 为什么我的 QEMU 会 “卡住”？
+
+`qemu-system` 本身作为一个模拟器，是不会直接卡死的，如果你在 `si` 或者 `c` 后，QEMU 看起来失去了响应，那么极有可能是程序运行到了意想不到的地方。例如在写入 `satp` 后，如果部分 bit 没有成功设置，那么可能会直接跳进 `trap`。而且在前面的实验中我们也发现了，在发生特权级切换或者发生陷入时，`si` 是有可能无法触发的，这种情况下就需要你在程序可能到达的地方都打上断点来暂停 QEMU 的执行了。
+
+## 10 为什么我在设置 `satp` 后导致了 `gdb-multiarch` 的 `segmentation fault` ?
+
+因为 `satp` 或者各级页表项设置有问题。

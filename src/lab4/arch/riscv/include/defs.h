@@ -1,11 +1,12 @@
 #ifndef _DEFS_H
 #define _DEFS_H
 
-#include "types.h"
+// #include "types.h"
 
 #define TASK_THREAD_RA 40
 
 #define PHY_START 0x0000000080000000
+//0x88000000
 #define PHY_SIZE  128 * 1024 * 1024 // 128MB,  QEMU 默认内存大小
 #define PHY_END   (PHY_START + PHY_SIZE)
 
@@ -20,6 +21,7 @@
 #define VM_SIZE  (VM_END - VM_START)
 
 #define PA2VA_OFFSET (VM_START - PHY_START)
+// #define PA2VA_OFFSET 0xffffffdf80000000
 
 #define csr_read(csr)                       \
 ({                                          \

@@ -52,7 +52,8 @@ void dummy() {
         if (last_counter == -1 || current->counter != last_counter) {
             last_counter = current->counter;
             auto_inc_local_var = (auto_inc_local_var + 1) % MOD;
-            printk("[PID = %d] is running. auto_inc_local_var = %d\n", current->pid, auto_inc_local_var);
+            // printk("[PID = %d] is running. auto_inc_local_var = %d\n", current->pid, auto_inc_local_var);
+            printk("[PID = %d] is running. thread space begin at 0x%lx\n", current->pid, (uint64)current);
             printk("current->counter = %d\n", current->counter);
         }
     }

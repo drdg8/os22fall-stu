@@ -1,4 +1,5 @@
-// #include "clock.c"
+#include "types.h"
+#include "defs.h"
 // #include "../../../include/printk.h"
 
 unsigned long pow(unsigned long x, int n){
@@ -16,7 +17,9 @@ void trap_handler(unsigned long scause, unsigned long sepc) {
     // `clock_set_next_event()` 见 4.5 节
     // 其他interrupt / exception 可以直接忽略
 
-    // YOUR CODE HERE
+    // printk("scause: %lx", scause);
+    // while(1);
+
     // interrupt
     if (scause % pow(10, 31)){
         // if (scause % 16 == 4){

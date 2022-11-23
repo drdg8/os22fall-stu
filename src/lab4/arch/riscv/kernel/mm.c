@@ -43,6 +43,7 @@ void kfreerange(char *start, char *end) {
 }
 
 void mm_init(void) {
-    kfreerange(_ekernel, (char *)PHY_END);
+    // here the all physical memory is 128M
+    kfreerange(_ekernel, (char *)(VM_START+0x8000000));
     printk("...mm_init done!\n");
 }

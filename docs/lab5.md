@@ -167,8 +167,9 @@ struct task_struct {
 * 修改 task_init
     * 对每个用户态进程，其拥有两个 stack： `U-Mode Stack` 以及 `S-Mode Stack`， 其中 `S-Mode Stack` 在 `lab3` 中我们已经设置好了。我们可以通过 `alloc_page` 接口申请一个空的页面来作为 `U-Mode Stack`。
     * 为每个用户态进程创建自己的页表 并将 `uapp` 所在页面，以及 `U-Mode Stack` 做相应的映射，同时为了避免 `U-Mode` 和 `S-Mode` 切换的时候切换页表，我们也将内核页表 （ `swapper_pg_dir` ） 复制到每个进程的页表中。注意程序运行过程中，有部分数据不在栈上，而在初始化的过程中就已经被分配了空间（比如我们的 `uapp` 中的 `counter` 变量），所以二进制文件需要先被 **拷贝** 到一块某个进程专用的内存之后再进行映射，防止所有的进程共享数据，造成期望外的进程间相互影响。
-    * 对每个用户态进程我们需要将 `sepc` 修改为 `USER_START`， 设置 `sstatus` 中的 `SPP` （ 使得 sret 返回至 U-Mode ）， `SPIE` （ sret 之后开启中断 ）， `SUM` （ S-Mode 可以访问 User 页面 ）， `sscratch` 设置为 `U-Mode` 的 sp，其值为 `USER_END` （即  `U-Mode Stack` 被放置在 `user space` 的最后一个页面）。
+    * 对每个用户态进程我们需要将 `sepc` 修改为 `USER_START`，配置修改好 `sstatus` 中的 `SPP` （ 使得 sret 返回至 U-Mode ）， `SPIE` （ sret 之后开启中断 ）， `SUM` （ S-Mode 可以访问 User 页面 ）， `sscratch` 设置为 `U-Mode` 的 sp，其值为 `USER_END` （即  `U-Mode Stack` 被放置在 `user space` 的最后一个页面）。
     * 修改 __switch_to， 需要加入 保存/恢复 `sepc` `sstatus` `sscratch` 以及 切换页表的逻辑。
+    * 在切换了页表之后，需要通过 `fence.i` 和 `vma.fence` 来刷新 TLB 和 ICache。
 
 ```
                 PHY_START                                                                PHY_END
@@ -187,10 +188,10 @@ struct task_struct {
        ├────────────────────────┼───────────────────────────────────────────────────────────────────┬────────────┐
  VA    │           UAPP         │                                                                   │u mode stack│
        └────────────────────────┴───────────────────────────────────────────────────────────────────┴────────────┘
-       ▲                                                                                             ▲
-       │                                                                                             │
+       ▲                                                                                                         ▲
+       │                                                                                                         │
 
-   USER_START                                                                                    USER_END
+   USER_START                                                                                                USER_END
 
 ```
 
@@ -234,14 +235,14 @@ struct task_struct {
         Low  Addr ───►  └─────────────┘
 
     ```
-    请同学自己补充 `struct pt_regs`的定义， 以及在 `trap_hanlder` 中补充处理 SYSCALL 的逻辑。
+    请同学自己补充 `struct pt_regs`的定义， 以及在 `trap_handler` 中补充处理 SYSCALL 的逻辑。
 ### 4.4 添加系统调用
 * 本次实验要求的系统调用函数原型以及具体功能如下：
     * 64 号系统调用 `sys_write(unsigned int fd, const char* buf, size_t count)` 该调用将用户态传递的字符串打印到屏幕上，此处fd为标准输出（1），buf为用户需要打印的起始地址，count为字符串长度，返回打印的字符数。( 具体见 user/printf.c )
     * 172 号系统调用 `sys_getpid()` 该调用从current中获取当前的pid放入a0中返回，无参数。（ 具体见 user/getpid.c ）
 * 增加 `syscall.c` `syscall.h` 文件， 并在其中实现 `getpid` 以及 `write` 逻辑。
 * 系统调用的返回参数放置在 `a0` 中 (不可以直接修改寄存器， 应该修改 regs 中保存的内容)。
-* 针对系统调用这一类异常， 我们需要手动将 `sepc + 4` （ `sepc` 记录的是触发异常的指令地址， 由于系统调用这类异常处理完成之后， 我们应该继续执行后续的指令，因此需要我们手动修改 `spec` 的地址，使得 `sret` 之后 程序继续执行）。
+* 针对系统调用这一类异常， 我们需要手动将 `sepc + 4` （ `sepc` 记录的是触发异常的指令地址， 由于系统调用这类异常处理完成之后， 我们应该继续执行后续的指令，因此需要我们手动修改 `sepc` 的地址，使得 `sret` 之后 程序继续执行）。
 
 ### 4.5 修改 head.S 以及 start_kernel
 * 在之前的 lab 中， 在 OS boot 之后，我们需要等待一个时间片，才会进行调度。我们现在更改为 OS boot 完成之后立即调度 uapp 运行。
@@ -427,7 +428,7 @@ File Attributes
 .incbin "uapp"
 
 ```
-这时候从 `uapp_start` 开始的数据就变成了名为 `uapp` 的 ELF 文件，也就是说 `*(uint32_t*)uapp_start` 这 32-bit 的数据不再是第一条指令了，而是 ELF Header 的开始，这时候我们再进行 `make run`，会发现跳进了 trap，并且 trap number 是无效的指令。
+这时候从 `uapp_start` 开始的数据就变成了名为 `uapp` 的 ELF 文件，也就是说 `uapp_start` 处 32-bit 的数据不再是我们需要执行第一条指令了，而是 ELF Header 的开始。
 
 这时候就需要你对 `task_init` 中的初始化步骤进行修改。我们给出了 ELF 相关的结构体定义（`elf.h`），大家可以直接使用。你可能会使用到的结构体或者域如下：
 
@@ -447,7 +448,8 @@ Elf64_Phdr   // 存储了程序各个 Segment 相关的 metadata
     p_memsz  // Segment 在内存中占的大小
     p_vaddr  // Segment 起始的用户态虚拟地址
     p_offset // Segment 在文件中相对于 Ehdr 的偏移量
-    p_type   // Segment 的类型
+    p_type   // Segment 的类型 
+    p_flags  // Segment 的权限（包括了读、写和执行）
 
 ```
 这里有不少例子可以举，为了避免同学们在实验中花太多时间，我们告诉大家可以怎么找到实验中这些相关变量被存在了哪里：

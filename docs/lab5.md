@@ -482,10 +482,10 @@ static uint64_t load_program(struct task_struct* task) {
         }
     }
   
-		// allocate user stack and do mapping
-  	// code...
+    // allocate user stack and do mapping
+    // code...
   
-  	// following code has been written for you
+    // following code has been written for you
     // set user stack
     ...;
     // pc for the user program

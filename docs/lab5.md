@@ -486,8 +486,8 @@ static uint64_t load_program(struct task_struct* task) {
   	// code...
   
   	// following code has been written for you
- 	// set user stack
-    task->thread_info->user_sp = ...;
+    // set user stack
+    ...;
     // pc for the user program
     task->thread.sepc = ehdr->e_entry;
     // sstatus bits set

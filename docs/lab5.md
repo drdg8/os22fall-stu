@@ -7,7 +7,7 @@
 
 ## 2 实验环境
 
-* Docker in Lab0
+* Same as previous labs.
 
 
 ## 3 背景知识

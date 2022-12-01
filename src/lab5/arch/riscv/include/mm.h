@@ -17,7 +17,7 @@ struct buddy {
 };
 
 void buddy_init();
-uint64_t  buddy_alloc(uint64_t);
+uint64_t buddy_alloc(uint64_t);
 void buddy_free(uint64_t);
 
 uint64_t alloc_pages(uint64_t);

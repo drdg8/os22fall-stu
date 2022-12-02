@@ -86,3 +86,7 @@ linux-6.0-rc5/linux-5.19.9
 ## 13 为什么我 `sret` 到用户程序的第一条指令时会 Instruction Page Fault?
 
 大概率是因为没有设置好页表项里的 U-bit, 详细可以读一下 Privileged Spec.
+
+## 14 `uapp` 要怎么拷贝到内存里？是要我们直接实现 VMA 和 `mmap` 吗？
+
+只要一个一个字节地将内容复制到我们使用 `alloc_pages` 或者 `kalloc` 开辟的内存中即可，VMA 和 `mmap` 将在 Lab6 或之后才会引入，暂时不用同学们实现。

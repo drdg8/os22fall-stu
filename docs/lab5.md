@@ -480,6 +480,7 @@ static uint64_t load_program(struct task_struct* task) {
     for (int i = 0; i < phdr_cnt; i++) {
         phdr = (Elf64_Phdr*)(phdr_start + sizeof(Elf64_Phdr) * i);
         if (phdr->p_type == PT_LOAD) {
+            // alloc space and copy content
           	// do mapping
           	// code...
         }

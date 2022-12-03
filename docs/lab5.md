@@ -75,11 +75,14 @@ for GNU/Linux 3.2.0, not stripped
 
 ...
 ```
+> 如果你要使用 `uapp_start` 这个符号，可以在代码里这样来声明它：`extern char uapp_start[]`，这样就可以像一个字符数组一样来访问这块内存的内容。例如，程序的第一个字节就是 `uapp_start[0]`。
+
 * 需要修改 `defs.h`，在 `defs.h` **添加** 如下内容：
 ```c
 #define USER_START (0x0000000000000000) // user space start virtual address
 #define USER_END   (0x0000004000000000) // user space end virtual address
 ```
+
 * 从 `repo` 同步以下文件和文件夹。并按照下面的位置来放置这些新文件。值得注意的是，我们在 `mm` 中添加了 `buddy system`，但是也保证了原来调用的 `kalloc` 和 `kfree` 的兼容。你应该无需修改原先使用了 `kalloc` 的相关代码，如果出现兼容性问题可以联系助教。为了减小大家的工作量，我们替大家实现了 Buddy System，大家可以直接使用这些函数来管理内存：
 ```c
 // 分配 page_cnt 个页的地址空间，返回分配内存的地址。保证分配的内存在虚拟地址和物理地址上都是连续的

@@ -456,6 +456,8 @@ Elf64_Phdr   // 存储了程序各个 Segment 相关的 metadata
     p_flags  // Segment 的权限（包括了读、写和执行）
 
 ```
+我们可以按照这些信息，在从 `uapp_start` - `uapp_end` 这个 ELF 文件中的内容 **拷贝** 到我们开辟的内存中。
+
 这里有不少例子可以举，为了避免同学们在实验中花太多时间，我们告诉大家可以怎么找到实验中这些相关变量被存在了哪里：
 
 * `Elf64_Ehdr* ehdr = (Elf64_Ehdr*)uapp_start`，从地址 uapp_start 开始，便是我们要找的 Ehdr.

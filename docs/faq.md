@@ -73,7 +73,7 @@ linux-6.0-rc5/linux-5.19.9
 
 ## 10 为什么我在设置 `satp` 后导致了 `gdb-multiarch` 的 `segmentation fault` ?
 
-因为 `satp` 或者各级页表项设置有问题。
+因为 `satp` 或者各级页表项设置有问题。比如检查一下我们之前一直忽略的页表项里 U-bit 设置好了没有。
 
 ## 11 为什么在 `vmlinux.lds.S` 中会 `#include "types.h"`?
 

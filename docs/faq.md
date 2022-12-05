@@ -85,7 +85,7 @@ linux-6.0-rc5/linux-5.19.9
 
 ## 13 为什么我 `sret` 到用户程序的第一条指令时会 Instruction Page Fault?
 
-大概率是因为没有设置好页表项里的 U-bit, 详细可以读一下 Privileged Spec.
+大概率是因为没有设置好页表项里的 U-bit, 详细可以读一下 Privileged Spec. 也有可能你没有将内存映射到正确的位置上。
 
 ## 14 `uapp` 要怎么拷贝到内存里？是要我们直接实现 VMA 和 `mmap` 吗？
 

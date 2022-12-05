@@ -394,7 +394,7 @@ Fork 在早期的 Linux 中就被指定了名字，叫做 `clone`,
 
 也就是说，内核态的所有数据，包括了栈、陷入内核态时的寄存器，还有上一次发生调度时，调用 `switch_to` 时的 `thread_struct` 信息，都被存在了这短短的 4K 内存中。这给我们的实现带来了很大的方便，这 4K 空间里的数据就是我们需要的所有所有内核态数据了！（当然如果你没有进行步骤 4.0, 那还需要开一个页并复制一份 `thread_info` 信息）
 
-除了内核态之外，你还需要**深拷贝**一份页表，并遍历页表中映射到 parent task 用户地址空间的页表项（为了减小开销，你需要根据 parent task 的 vmas 来 walk page table），这些应该由 parent task 专有的页，**如果是有效的**，就需要你另外分配空间，并从原来的内存中拷贝数据到新开辟的空间，然后将新开辟的页映射到 user space task 页表的对应页表项中。为什么只要拷贝有效的，那些还没有因为 Page Fault 而被分配并映射的页怎么办?
+除了内核态之外，你还需要**深拷贝**一份页表，并遍历页表中映射到 parent task 用户地址空间的页表项（为了减小开销，你需要根据 parent task 的 vmas 来 walk page table），这些应该由 parent task 专有的页，如果已经分配并且映射到 parent task 的地址空间中了，就需要你另外分配空间，并从原来的内存中拷贝数据到新开辟的空间，然后将新开辟的页映射到 child task 的地址空间中。想想为什么只要拷贝那些已经分配并映射的页，那些本来应该被分配并映射，但是暂时还没有因为 Page Fault 而被分配并映射的页怎么办?
 
 #### 4.4.2 __ret_from_fork
 
@@ -427,16 +427,14 @@ __ret_from_fork:
 
 某知名体系结构课程老师说过，skeleton 是给大家参考用的，不是给大家直接抄的。接下来我们给大家的代码框架**理论上**可以直接运行，因为在写作实验文档前某助教刚刚自己完整实现了一次。但是我们的当前的框架是最 Lean 的，也就是说虽然一定能跑，但是同学们照着这个来写可能会有一些不方便，同学可以自行修改框架，来更好地贴合自己的实现。
 
+我们要在存储所有 task 的数组 `task` 中寻找一个空闲的位置。我们用最简单的管理方式，将原本的 `task` 数组的大小开辟成 16, IDLE task 和 初始化时新建的 task 各占用一个，剩余 14 个全部赋值成 NULL。 如果 `task[pid] == NULL`, 说明这个 pid 还没有被占用，可以作为新 task 的 pid，并将 `task[pid]` 赋值为新的 `struct task_struct*`。由于我们的实验中不涉及 task 的销毁，所以这里的逻辑可以只管填充，不管擦除。
+
 在实现中，你需要始终思考的问题是，怎么才能够**让新创建的 task 获得调度后，正确地跳转到 `__ref_from_fork`, 并且利用 `sp` 正确地从内存中取值**。为了简单起见，`sys_clone` 只接受一个参数 `pt_regs *`，下面是代码框架：
 
 ```c
 
 uint64_t sys_clone(struct pt_regs *regs) {
     /*
-     0. 为了简单起见，允许将所有的 vm_area_struct 中还没有分配的内存进行分配并映射，
-        这样在复制用户程序的内存的时候，可以相对方便一些。你也可以不做这一步，
-        这样在拷贝用户态程序内存时，只拷贝已经分配并映射了的那些页即可。
-
      1. 参考 task_init 创建一个新的 task, 将的 parent task 的整个页复制到新创建的 
         task_struct 页上(这一步复制了哪些东西?）。将 thread.ra 设置为 
         __ret_from_fork, 并正确设置 thread.sp
@@ -446,12 +444,14 @@ uint64_t sys_clone(struct pt_regs *regs) {
         并将其中的 a0, sp, sepc 设置成正确的值(为什么还要设置 sp?)
 
      3. 为 child task 申请 user stack, 并将 parent task 的 user stack 
-        数据复制到其中. 同时将子 task 的 user stack 的地址保存在 thread_info->
+        数据复制到其中。 
+        
+     3.1. 同时将子 task 的 user stack 的地址保存在 thread_info->
         user_sp 中，如果你已经去掉了 thread_info，那么无需执行这一步
 
      4. 为 child task 分配一个根页表，并仿照 setup_vm_final 来创建内核空间的映射
 
-     5. 根据 parent task 的页表或者 vma 来分配并拷贝 child task 在用户态会用到的内存
+     5. 根据 parent task 的页表和 vma 来分配并拷贝 child task 在用户态会用到的内存
 
      6. 返回子 task 的 pid
     */
@@ -567,7 +567,7 @@ uint64_t sys_clone(struct pt_regs *regs) {
 
 1. `uint64_t vm_content_size_in_file;` 对应的文件内容的长度。为什么还需要这个域?
 2. `struct vm_area_struct vmas[0];` 为什么可以开大小为 0 的数组? 这个定义可以和前面的 vma_cnt 换个位置吗?
-3. 这些应该由 parent task 专有的页，**如果是有效的**，就需要你另外分配空间，并从原来的内存中拷贝数据到新开辟的空间，然后将新开辟的页映射到 user space task 页表的对应页表项中。为什么只要拷贝有效的，那些还没有因为 Page Fault 而被分配并映射的页怎么办?
+3. 想想为什么只要拷贝那些已经分配并映射的页，那些本来应该被分配并映射，但是暂时还没有因为 Page Fault 而被分配并映射的页怎么办?
 4. 参考 task_init 创建一个新的 task, 将的 parent task 的整个页复制到新创建的 task_struct 页上, 这一步复制了哪些东西?
 5. 将 thread.ra 设置为 `__ret_from_fork`, 并正确设置 `thread.sp`。仔细想想，这个应该设置成什么值?可以根据 child task 的返回路径来倒推。
 6. 利用参数 regs 来计算出 child task 的对应的 pt_regs 的地址，并将其中的 a0, sp, sepc 设置成正确的值。为什么还要设置 sp?

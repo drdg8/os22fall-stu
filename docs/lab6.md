@@ -574,3 +574,47 @@ uint64_t sys_clone(struct pt_regs *regs) {
 
 ## 作业提交
 同学需要提交实验报告以及整个工程代码。在提交前请使用 `make clean` 清除所有构建产物。请在处理 Page Fault 前，输出一段信息表明发生了 Page Fault，并且输出 `sepc, scause, stval`。并且对于每一个我们给出的 `main` 函数，请截图到每个进程至少被调度到两次为止。并标明在各个 `main` 作为 `uapp` 的情况下，一共会发生多少次 Page Fault。
+
+## 更多测试样例
+
+下面是同学提供的测试样例，不强制要求大家都运行一遍。但是如果想增强一下对自己写的代码的信心，可以尝试替换 `main` 并运行。如果你有其他适合用来测试的代码，欢迎为仓库做出贡献。
+
+[lhjgg](https://frightenedfoxcn.github.io/blog/) 给出的样例：
+```c
+#define LARGE 1000
+
+unsigned long something_large_here[LARGE] = {0};
+
+int fib(int times) {
+  if (times <= 2) {
+    return 1;
+  } else {
+    return fib(times - 1) + fib(times - 2);
+  }
+}
+
+int main() {
+  for (int i = 0; i < LARGE; i++) {
+    something_large_here[i] = i;
+  }
+  int pid = fork();
+  printf("[U] fork returns %d\n", pid);
+
+  if (pid == 0) {
+    while(1) {
+      printf("[U-CHILD] pid: %ld is running! the %dth fibonacci number is %d and the number @ %d in the large array is %d\n", getpid(), global_variable, fib(global_variable), LARGE - global_variable, something_large_here[LARGE - global_variable]);
+      global_variable++;
+      for (int i = 0; i < 0xFFFFFF; i++);
+    }
+  } else {
+    while (1) {
+      printf("[U-PARENT] pid: %ld is running! the %dth fibonacci number is %d and the number @ %d in the large array is %d\n", getpid(), global_variable, fib(global_variable), LARGE - global_variable, something_large_here[LARGE - global_variable]);
+      global_variable++;
+      for (int i = 0; i < 0xFFFFFF; i++);
+    }
+  }
+}
+```
+
+> 有一个可能的bug就是两个线程算出来的同一个斐波那契数不一致，这时候就是用户栈切换的问题，其他样例应该测不出来. 删了几行之后的错误示范（
+> ![1 ZE$IPCYT2}N)7~XIBG3_1](https://user-images.githubusercontent.com/57927141/205851029-d283ecd8-d2b2-4aa9-9af3-bdd94fe1aea9.png)

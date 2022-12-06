@@ -421,7 +421,7 @@ __ret_from_fork:
 
 自此我们知道，我们可以利用这两个寄存器，完成一个类似于 ROP(return oriented programming) 的操作。也就是说，我们通过控制 `ra` 寄存器，来控制程序的执行流，让它跳转到 context switch 的后半段；通过控制 `sp` 寄存器，从内核态的栈上恢复出我们在 `sys_clone` 时拷贝到新的 task 的栈上的，原本在 context switch 时被压入父 task 的寄存器值，然后通过 sret 直接跳回用户态执行用户态程序。
 
-于是，父 task 的返回路径是这样的：`sys_clone->trap_handler->_traps->user program`, 而我们新 `fork` 出来的 task, 要以这样的路径返回: `__switch_to->__ret_from_fork(in trap_handler)->user program`.
+于是，父 task 的返回路径是这样的：`sys_clone->trap_handler->_traps->user program`, 而我们新 `fork` 出来的 task, 要以这样的路径返回: `__switch_to->__ret_from_fork(in _traps)->user program`.
 
 #### 4.4.3 Code Skeleton
 

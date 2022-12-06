@@ -235,7 +235,7 @@ struct task_struct {
 };
 ```
 
-每一个 vm_area_struct 都对应于 task 地址空间的唯一**连续**区间。
+每一个 vm_area_struct 都对应于 task 地址空间的唯一**连续**区间。注意我们这里的 `vm_flag` 和 `p_flags` 并没有按 bit 进行对应，请同学们仔细对照 bit 的位置，以免出现问题。
 
 为了支持 `Demand Paging`（见 4.3），我们需要支持对 vm_area_struct 的添加和查找。
 
@@ -350,7 +350,7 @@ void do_page_fault(struct pt_regs *regs) {
      1. 通过 stval 获得访问出错的虚拟内存地址（Bad Address）
      2. 通过 find_vma() 查找 Bad Address 是否在某个 vma 中
      3. 分配一个页，将这个页映射到对应的用户地址空间
-     4. 通过 vma->vm_flags | VM_ANONYM 获得当前的 VMA 是否是匿名空间
+     4. 通过 (vma->vm_flags | VM_ANONYM) 获得当前的 VMA 是否是匿名空间
      5. 根据 VMA 匿名与否决定将新的页清零或是拷贝 uapp 中的内容
     */
 }

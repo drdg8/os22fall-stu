@@ -458,7 +458,7 @@ Elf64_Phdr   // 存储了程序各个 Segment 相关的 metadata
 ```
 我们可以按照这些信息，在从 `uapp_start` - `uapp_end` 这个 ELF 文件中的内容 **拷贝** 到我们开辟的内存中。
 
-其中相对文件偏移 `p_offset` 指出相应 segment 的内容从 ELF 文件的第 `p_offset` 字节开始, 在文件中的大小为 `p_filesz`, 它需要被分配到以 `p_vaddr` 为首地址的虚拟内存位置, 在内存中它占用大小为 `p_memsz`. 也就是说, 这个segment使用的内存就是 `[p_vaddr, p_vaddr + p_memsz)` 这一连续区间, 然后将 segment 的内容从ELF文件中读入到这一内存区间, 并将 `[p_vaddr + p_filesz, p_vaddr + p_memsz)` 对应的物理区间清零. （本段内容引用自[南京大学PA](https://nju-projectn.github.io/ics-pa-gitbook/ics2022/3.3.html))
+其中相对文件偏移 `p_offset` 指出相应 segment 的内容从 ELF 文件的第 `p_offset` 字节开始, 在文件中的大小为 `p_filesz`, 它需要被分配到以 `p_vaddr` 为首地址的虚拟内存位置, 在内存中它占用大小为 `p_memsz`. 也就是说, 这个 segment 使用的内存就是 `[p_vaddr, p_vaddr + p_memsz)` 这一连续区间, 然后将 segment 的内容从ELF文件中读入到这一内存区间, 并将 `[p_vaddr + p_filesz, p_vaddr + p_memsz)` 对应的物理区间清零. （本段内容引用自[南京大学PA](https://nju-projectn.github.io/ics-pa-gitbook/ics2022/3.3.html))
 
 你也可以参考这篇 [blog](https://www.gabriel.urdhr.fr/2015/01/22/elf-linking/) 中关于 **静态** 链接程序的载入过程来进行你的载入。
 

@@ -458,7 +458,11 @@ Elf64_Phdr   // 存储了程序各个 Segment 相关的 metadata
 ```
 我们可以按照这些信息，在从 `uapp_start` - `uapp_end` 这个 ELF 文件中的内容 **拷贝** 到我们开辟的内存中。
 
-这里有不少例子可以举，为了避免同学们在实验中花太多时间，我们告诉大家可以怎么找到实验中这些相关变量被存在了哪里：
+其中相对文件偏移Offset指出相应segment的内容从ELF文件的第Offset字节开始, 在文件中的大小为 `p_filesz`, 它需要被分配到以 `p_vaddr` 为首地址的虚拟内存位置, 在内存中它占用大小为 `p_memsz`. 也就是说, 这个segment使用的内存就是 `[p_vaddr, p_vaddr + p_memsz)` 这一连续区间, 然后将 segment 的内容从ELF文件中读入到这一内存区间, 并将 `[p_vaddr + p_filesz, p_vaddr + p_memsz)` 对应的物理区间清零. （本段内容引用自[南京大学PA](https://nju-projectn.github.io/ics-pa-gitbook/ics2022/3.3.html))
+
+你也可以参考这篇 [blog](https://www.gabriel.urdhr.fr/2015/01/22/elf-linking/) 中关于 **静态** 链接程序的载入过程来进行你的载入。
+
+这里有不少例子可以举，为了避免同学们在实验中花太多时间，我们告诉大家可以怎么找到实验中这些相关变量被存在了哪里：(注意以下的 `uapp_start` 类型使用的是 `char*`，如果你在使用其他类型，需要根据你使用的类型去调整针对指针的算数运算。）
 
 * `Elf64_Ehdr* ehdr = (Elf64_Ehdr*)uapp_start`，从地址 uapp_start 开始，便是我们要找的 Ehdr.
 * `Elf64_Phdr* phdrs = (Elf64_Phdr*)(uapp_start + ehdr->phoff)`，是一个 Phdr 数组，其中的每个元素都是一个 `Elf64_Phdr`.

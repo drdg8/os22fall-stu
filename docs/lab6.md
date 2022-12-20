@@ -327,7 +327,7 @@ ELF Header:
   Type:                              EXEC (Executable file)
   Machine:                           RISC-V
   Version:                           0x1
-  Entry point address:               0x100e8
+  Entry point address:               some address
 
 ......
 ************************** uapp elf_header **************************

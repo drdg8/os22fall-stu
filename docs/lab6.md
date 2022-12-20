@@ -308,11 +308,11 @@ RISC-V 异常处理：当系统运行发生异常时，可即时地通过解析 
 * 代码区域：该区域从 ELF 给出的起始地址 `ehdr->e_entry` 开始，大小为 `uapp_end - uapp_start`(`ramdisk_end - ramdisk_start`).
 * 用户栈 -->
 
-在完成上述修改之后，如果运行代码我们就可以截获一个 page fault，如下所示：
+在完成上述修改之后，如果运行代码我们就可以截获一个 page fault，如下所示（其中三个 `address0` 是同一个地址，表示了用户态需要运行的第一条指令的位置）：
 
 ```
 [S] Switch to: pid: 1, priority: 1, counter: 4
-[S] Unhandled trap, scause: 000000000000000c, stval: 00000000000100e8, sepc: 00000000000100e8
+[S] Unhandled trap, scause: 000000000000000c, stval: address0, sepc: address0
 
 ************************** uapp elf_header **************************
 
@@ -327,7 +327,7 @@ ELF Header:
   Type:                              EXEC (Executable file)
   Machine:                           RISC-V
   Version:                           0x1
-  Entry point address:               some address
+  Entry point address:               address0
 
 ......
 ************************** uapp elf_header **************************

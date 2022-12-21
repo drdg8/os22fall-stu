@@ -17,6 +17,38 @@ extern char uapp_end[];
 
 #define MIN(a, b) (((a) > (b)) ? (b) : (a))
 
+static uint64_t load_program(struct task_struct* task) {
+    Elf64_Ehdr* ehdr = (Elf64_Ehdr*)uapp_start;
+
+    uint64_t phdr_start = (uint64_t)ehdr + ehdr->e_phoff;
+    int phdr_cnt = ehdr->e_phnum;
+
+    Elf64_Phdr* phdr;
+    for (int i = 0; i < phdr_cnt; i++) {
+        phdr = (Elf64_Phdr*)(phdr_start + sizeof(Elf64_Phdr) * i);
+        if (phdr->p_type == PT_LOAD) {
+            // alloc space and copy content
+            uint64_t u_start = (uint64_t)ehdr + phdr->p_offset;
+
+            uint64_t va = phdr->p_vaddr;
+            uint64_t map_user = alloc_page(phdr->p_memsz/PGSIZE + 1);
+            char *dst = (char *)map_user;
+            char *src = (char *)u_start;
+            // copy memory 
+            for(uint64_t j = va&0xfff; j < (va&0xfff) + phdr->p_filesz; j++){
+                dst[j] = src[j-va&0xfff];
+            }
+            for( ; va < phdr->p_vaddr + phdr->p_memsz; va += PGSIZE){
+                // pretend each user space is started with p_vaddr
+                // the va has to be 000 tailed
+                create_mapping(task->pgd, va >> 12 << 12, map_user - PA2VA_OFFSET, PGSIZE, 0b11111);
+            }
+        }
+    }
+
+    task->thread.sepc = ehdr->e_entry;
+}
+
 void task_init() {
     // 1. 调用 kalloc() 为 idle 分配一个物理页
     // 2. 设置 state 为 TASK_RUNNING;
@@ -63,22 +95,20 @@ void task_init() {
             task[i]->pgd[j] = swapper_pg_dir[j];
         }
 
-        // printk("uapp_start = %lx, uapp_start = %lx\n", uapp_start, uapp_end);
-        // printk("Ustack = %lx\n", Ustack);
-
-        uint64_t map_user;
-        // mapping user memory U|-|W|R|V
-        for(va = uapp_start; va < uapp_end; va += PGSIZE){
-            map_user = alloc_page();
-            char *dst = (char *)map_user;
-            char *src = (char *)va;
-            // copy memory 
-            for(uint64_t j = 0; j < MIN(0x1000, uapp_end - va); j++){
-                dst[j] = src[j];
-            }
-            // here pretend each user space is started with 0x0
-            create_mapping(task[i]->pgd, USER_START+va-(uint64_t)uapp_start, map_user - PA2VA_OFFSET, PGSIZE, 0b11111);
-        }
+        // uint64_t map_user;
+        // // mapping user memory U|-|W|R|V
+        // for(va = uapp_start; va < uapp_end; va += PGSIZE){
+        //     map_user = alloc_page();
+        //     char *dst = (char *)map_user;
+        //     char *src = (char *)va;
+        //     // copy memory 
+        //     for(uint64_t j = 0; j < MIN(0x1000, uapp_end - va); j++){
+        //         dst[j] = src[j];
+        //     }
+        //     // here pretend each user space is started with 0x0
+        //     create_mapping(task[i]->pgd, USER_START+va-uapp_start, map_user - PA2VA_OFFSET, PGSIZE, 0b11111);
+        // }
+        load_program(task[i]);
 
         Ustack = alloc_page();
         create_mapping(task[i]->pgd, USER_END - PGSIZE, Ustack - PA2VA_OFFSET, PGSIZE, 0b10111);
@@ -88,7 +118,7 @@ void task_init() {
         satp = ((satp >> 44) << 44) | ((unsigned long)task[i]->pgd - PA2VA_OFFSET) >> 12;
         task[i]->pgd = (pagetable_t)satp;
 
-        task[i]->thread.sepc = USER_START;
+        // task[i]->thread.sepc = USER_START;
 
         uint64_t sstatus = csr_read(sstatus);
         // SSP SPIE SUM

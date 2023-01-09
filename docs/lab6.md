@@ -2,10 +2,12 @@
 
 > 非常建议大家先通读整篇实验指导，完成思考题后再动手写代码
 
+本次实验中的 fork 机制为 bonus，占总成绩构成的 5%
+
 ## 1. 实验目的
 * 通过 **vm_area_struct** 数据结构实现对 task **多区域**虚拟内存的管理。
 * 在 **Lab5** 实现用户态程序的基础上，添加缺页异常处理 **Page Fault Handler**。
-* 为 task 加入 **fork** 机制，能够支持通过 **fork** 创建新的用户态 task 。
+* **Bonus:** 为 task 加入 **fork** 机制，能够支持通过 **fork** 创建新的用户态 task 。
 
 ## 2. 实验环境 
 * Environment in previous labs.

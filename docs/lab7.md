@@ -87,6 +87,10 @@ static const MemMapEntry virt_memmap[] = {
 
 > 省流：CPU 把值写进 UART 的寄存器里，UART 就会把这些值编码后传输出去。只要用专用的控制器进行接收，就能够显示在屏幕上。而 QEMU 已经帮我们实现好了所有部分，我们只负责写寄存器就行。
 
+### 3.3 VFS
+
+
+
 ## 4 实验步骤
 
 ### 4.1 Say Goodbye via UART
@@ -98,8 +102,8 @@ static const MemMapEntry virt_memmap[] = {
 
 ```c
 void bye() {
-    // create mapping(4.1.1)
-    // do the print(4.1.2)
+    // create the mapping from 0x10000000 to 0x10000000 (4.1.1)
+    // do the print (4.1.2)
 }
 ```
 
@@ -115,7 +119,13 @@ void bye() {
 *(volatile unsigned char *) 0x10000000 = c;
 ```
 
-时，就会把字符 `c` 的值写入寄存器，这个字符就会出现在我们运行 QEMU 的终端里了。
+时，就会把字符 `c` 的值写入寄存器，这个字符就会出现在我们运行 QEMU 的终端里了。所以需要做的事是遍历字符串，将其中的每一个字符都写入 `0x10000000` 这个地址。
+
+### 4.2 VFS 实现
+
+```rust
+todo!();
+```
 
 ## 5 实验提交
 

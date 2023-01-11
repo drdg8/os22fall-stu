@@ -352,7 +352,7 @@ void do_page_fault(struct pt_regs *regs) {
      1. 通过 stval 获得访问出错的虚拟内存地址（Bad Address）
      2. 通过 find_vma() 查找 Bad Address 是否在某个 vma 中
      3. 分配一个页，将这个页映射到对应的用户地址空间
-     4. 通过 (vma->vm_flags | VM_ANONYM) 获得当前的 VMA 是否是匿名空间
+     4. 通过 (vma->vm_flags & VM_ANONYM) 获得当前的 VMA 是否是匿名空间
      5. 根据 VMA 匿名与否决定将新的页清零或是拷贝 uapp 中的内容
     */
 }

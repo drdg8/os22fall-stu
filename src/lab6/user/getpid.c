@@ -28,8 +28,6 @@ int global_variable = 0;
 
 //   int pid;
 
-//   pid = fork();
-
 //     while(1) {
 //         printf("[PID = %d] is running, variable: %d\n", getpid(), global_variable++);
 //         for (unsigned int i = 0; i < 0x7FFFFFF; i++);

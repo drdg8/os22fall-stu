@@ -446,7 +446,7 @@ uint64_t sys_clone(struct pt_regs *regs) {
         并将其中的 a0, sp, sepc 设置成正确的值(为什么还要设置 sp?)
 
      3. 为 child task 申请 user stack, 并将 parent task 的 user stack 
-        数据复制到其中。 
+        数据复制到其中。 (既然 user stack 也在 vma 中，这一步也可以直接在 5 中做，无需特殊处理)
         
      3.1. 同时将子 task 的 user stack 的地址保存在 thread_info->
         user_sp 中，如果你已经去掉了 thread_info，那么无需执行这一步

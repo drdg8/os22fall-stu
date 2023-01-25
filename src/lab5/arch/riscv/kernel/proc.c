@@ -85,8 +85,7 @@ void task_init() {
 
         uint64_t satp = csr_read(satp);
         // Mode + Asid + ppn
-        satp = ((satp >> 44) << 44) | ((unsigned long)task[i]->pgd - PA2VA_OFFSET) >> 12;
-        task[i]->pgd = (pagetable_t)satp;
+        task[i]->thread.satp = ((satp >> 44) << 44) | ((unsigned long)task[i]->pgd - PA2VA_OFFSET) >> 12;
 
         task[i]->thread.sepc = USER_START;
 

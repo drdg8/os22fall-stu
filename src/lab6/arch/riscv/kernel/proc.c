@@ -26,24 +26,37 @@ static uint64_t load_program(struct task_struct* task) {
     Elf64_Phdr* phdr;
     for (int i = 0; i < phdr_cnt; i++) {
         phdr = (Elf64_Phdr*)(phdr_start + sizeof(Elf64_Phdr) * i);
-        if (phdr->p_type == PT_LOAD) {
-            // alloc space and copy content
-            uint64_t u_start = (uint64_t)ehdr + phdr->p_offset;
-
-            uint64_t va = phdr->p_vaddr;
-            uint64_t map_user = alloc_page(phdr->p_memsz/PGSIZE + 1);
-            char *dst = (char *)map_user;
-            char *src = (char *)u_start;
-            // copy memory 
-            for(uint64_t j = va&0xfff; j < (va&0xfff) + phdr->p_filesz; j++){
-                dst[j] = src[j-va&0xfff];
-            }
-            for( ; va < phdr->p_vaddr + phdr->p_memsz; va += PGSIZE){
-                // pretend each user space is started with p_vaddr
-                // the va has to be 000 tailed
-                create_mapping(task->pgd, va >> 12 << 12, map_user - PA2VA_OFFSET, PGSIZE, 0b11111);
-            }
+        uint64_t flag = 0;
+        // p_flags = RWX and vma->vm_flags are different.
+        if(phdr->p_flags & PF_X){
+            flag |= VM_X_MASK;
         }
+        if(phdr->p_flags & PF_W){
+            flag |= VM_W_MASK;
+        } 
+        if(phdr->p_flags & PF_R){
+            flag |= VM_R_MASK;
+        }
+        do_mmap(task, phdr->p_vaddr, phdr->p_memsz, flag, phdr->p_offset, phdr->p_filesz);
+
+        // if (phdr->p_type == PT_LOAD) {
+        //     // alloc space and copy content
+        //     uint64_t u_start = (uint64_t)ehdr + phdr->p_offset;
+
+        //     uint64_t va = phdr->p_vaddr;
+        //     uint64_t map_user = alloc_page(phdr->p_memsz/PGSIZE + 1);
+        //     char *dst = (char *)map_user;
+        //     char *src = (char *)u_start;
+        //     // copy memory 
+        //     for(uint64_t j = va&0xfff; j < (va&0xfff) + phdr->p_filesz; j++){
+        //         dst[j] = src[j-va&0xfff];
+        //     }
+        //     for( ; va < phdr->p_vaddr + phdr->p_memsz; va += PGSIZE){
+        //         // pretend each user space is started with p_vaddr
+        //         // the va has to be 000 tailed
+        //         create_mapping(task->pgd, va >> 12 << 12, map_user - PA2VA_OFFSET, PGSIZE, 0b11111);
+        //     }
+        // }
     }
 
     task->thread.sepc = ehdr->e_entry;
@@ -74,6 +87,7 @@ void task_init() {
 
     uint64_t Ustack;
     uint64_t va;
+    /* just init one task */ 
     for (int i = 1; i < NR_TASKS; i++ ){
         pgNum = kalloc();
         task[i] = (struct task_struct*)pgNum;
@@ -95,28 +109,15 @@ void task_init() {
             task[i]->pgd[j] = swapper_pg_dir[j];
         }
 
-        // uint64_t map_user;
-        // // mapping user memory U|-|W|R|V
-        // for(va = ramdisk_start; va < ramdisk_end; va += PGSIZE){
-        //     map_user = alloc_page();
-        //     char *dst = (char *)map_user;
-        //     char *src = (char *)va;
-        //     // copy memory 
-        //     for(uint64_t j = 0; j < MIN(0x1000, ramdisk_end - va); j++){
-        //         dst[j] = src[j];
-        //     }
-        //     // here pretend each user space is started with 0x0
-        //     create_mapping(task[i]->pgd, USER_START+va-ramdisk_start, map_user - PA2VA_OFFSET, PGSIZE, 0b11111);
-        // }
         load_program(task[i]);
 
-        Ustack = alloc_page();
-        create_mapping(task[i]->pgd, USER_END - PGSIZE, Ustack - PA2VA_OFFSET, PGSIZE, 0b10111);
+        // Ustack = alloc_page();
+        // create_mapping(task[1]->pgd, USER_END - PGSIZE, Ustack - PA2VA_OFFSET, PGSIZE, 0b10111);
+        do_mmap(task[i], USER_END - PGSIZE, PGSIZE, VM_W_MASK | VM_R_MASK | VM_ANONYM, 0, PGSIZE);
 
         uint64_t satp = csr_read(satp);
         // Mode + Asid + ppn
-        satp = ((satp >> 44) << 44) | ((unsigned long)task[i]->pgd - PA2VA_OFFSET) >> 12;
-        task[i]->pgd = (pagetable_t)satp;
+        task[i]->thread.satp = ((satp >> 44) << 44) | ((unsigned long)task[i]->pgd - PA2VA_OFFSET) >> 12;
 
         // task[i]->thread.sepc = USER_START;
 
@@ -237,3 +238,24 @@ void schedule(void) {
 #endif
 }
 
+void do_mmap(struct task_struct *task, uint64_t addr, uint64_t length, uint64_t flags,
+    uint64_t vm_content_offset_in_file, uint64_t vm_content_size_in_file){
+    // may run out of 4KB?
+    task->vma_cnt++;
+    // here wrong?
+    struct vm_area_struct *new_vma = &task->vmas[task->vma_cnt - 1];
+    new_vma->vm_start = addr;
+    new_vma->vm_end = addr + length;
+    new_vma->vm_flags = flags;
+    new_vma->vm_content_offset_in_file = vm_content_offset_in_file;
+    new_vma->vm_content_size_in_file = vm_content_size_in_file;
+}
+
+struct vm_area_struct *find_vma(struct task_struct *task, uint64_t addr){
+    for(uint64_t i = 0; i < task->vma_cnt; i++){
+        if(task->vmas[i].vm_start <= addr && task->vmas[i].vm_end > addr){
+            return &task->vmas[i];
+        }
+    }
+    return 0;
+}

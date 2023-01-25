@@ -25,7 +25,7 @@ struct thread_struct {
     uint64_t sp;
     uint64_t s[12];
 
-    uint64_t sepc, sstatus, sscratch; 
+    uint64_t sepc, sstatus, sscratch, satp; 
 };
 
 /* 线程数据结构 */

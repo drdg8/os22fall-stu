@@ -1,6 +1,5 @@
 // arch/riscv/kernel/vm.c
 #include "defs.h"
-#include "types.h"
 #include "stdint.h"
 
 // for 39 bits: max 8 fff fff fff
@@ -40,15 +39,15 @@ extern char _etext[];
 extern char _srodata[];
 extern char _erodata[];
 extern char _sdata[];
-// extern uint64 _stext;
+// extern uint64_t _stext;
 
 void setup_vm_final(void) {
     memset(swapper_pg_dir, 0x0, PGSIZE);
 
     // No OpenSBI mapping required
 
-    uint64 va;
-    uint64 *pa_swapper_pg_dir = (uint64 *)((uint64)swapper_pg_dir - PA2VA_OFFSET);
+    uint64_t va;
+    uint64_t *pa_swapper_pg_dir = (uint64_t *)((uint64_t)swapper_pg_dir - PA2VA_OFFSET);
 
     // mapping kernel text X|-|R|V
     for(va = _stext; va < _etext; va += PGSIZE){
@@ -70,7 +69,7 @@ void setup_vm_final(void) {
     }
 
     // set satp with swapper_pg_dir
-    uint64 val = ((uint64)8 << 60) + ((uint64)(pa_swapper_pg_dir) >> 12);
+    uint64_t val = ((uint64_t)8 << 60) + ((uint64_t)(pa_swapper_pg_dir) >> 12);
     csr_write(satp, val);
 
     // flush TLB
@@ -84,8 +83,8 @@ void setup_vm_final(void) {
 
 // it just get pgtbl 2/1, not 0
 // + is super than <<
-uint64 *get_next_pgtbl_base(uint64 *pgtbl, uint64 VPN){
-    uint64 next_pgtbl;
+uint64_t *get_next_pgtbl_base(uint64_t *pgtbl, uint64_t VPN){
+    uint64_t next_pgtbl;
     // V = 1 
     // no priority control
     if(pgtbl[VPN] % 2){
@@ -96,12 +95,12 @@ uint64 *get_next_pgtbl_base(uint64 *pgtbl, uint64 VPN){
         pgtbl[VPN] = (next_pgtbl >> 12 << 10) + 1;
     }
     // here return the virtual address
-    return (uint64 *)(next_pgtbl + PA2VA_OFFSET);
+    return (uint64_t *)(next_pgtbl + PA2VA_OFFSET);
 }
 
 /* 创建多级页表映射关系 */
 // 这是一个只支持sz = PGSIZE的
-create_mapping(uint64 *pgtbl2, uint64 va, uint64 pa, uint64 sz, int perm) {
+create_mapping(uint64_t *pgtbl2, uint64_t va, uint64_t pa, uint64_t sz, int perm) {
     /*
     pgtbl 为根页表的基地址
     va, pa 为需要映射的虚拟地址、物理地址
@@ -112,30 +111,32 @@ create_mapping(uint64 *pgtbl2, uint64 va, uint64 pa, uint64 sz, int perm) {
     可以使用 V bit 来判断页表项是否存在
     */
     // for sz < PGSIZE
-    uint64 VPN2 = va << 25 >> 25 >> 30;
-    uint64 VPN1 = va << 34 >> 34 >> 21;
-    uint64 VPN0 = va << 43 >> 43 >> 12;
-    uint64 VOFF = va << 52 >> 52;
-    uint64 PPN = pa >> 12;
-    uint64 POFF = pa << 52 >> 52;
+    uint64_t VPN2 = va << 25 >> 25 >> 30;
+    uint64_t VPN1 = va << 34 >> 34 >> 21;
+    uint64_t VPN0 = va << 43 >> 43 >> 12;
+    uint64_t VOFF = va << 52 >> 52;
+    uint64_t PPN = pa >> 12;
+    uint64_t POFF = pa << 52 >> 52;
     if (sz != PGSIZE){
         printk("ERROR: sz != PGSIZE\n");
     }
     if (VOFF != POFF){
         printk("ERROR: VOFF != POFF\n");
     }
+    // if (perm == 0x19)
+    //     printk("in mapping\n");
 
     // here if you wanna use creating mapping after setvm_final
     // you should use virtual address instead of phisical address
-    uint64 *pgtbl1 = get_next_pgtbl_base(pgtbl2, VPN2);
-    // if (perm == 0b11111)
+    uint64_t *pgtbl1 = get_next_pgtbl_base(pgtbl2, VPN2);
+    // if (perm == 0x19)
     //     printk("%lx, pgtbl2[%ld]: %lx, pn = %lx\n", pgtbl2, VPN2, pgtbl2[VPN2], pgtbl2[VPN2] >> 10 << 12);
-    uint64 *pgtbl0 = get_next_pgtbl_base(pgtbl1, VPN1);
-    // if (perm == 0b11111)
+    uint64_t *pgtbl0 = get_next_pgtbl_base(pgtbl1, VPN1);
+    // if (perm == 0x19)
     //     printk("%lx, pgtbl1[%lx]: %lx, pn = %lx\n", pgtbl1, VPN1, pgtbl1[VPN1], pgtbl1[VPN1] >> 10 << 12);
 
     // map PPN
     pgtbl0[VPN0] = (PPN << 10) + perm;
-    // if (perm == 0b11111)
+    // if (perm == 0x19)
     //     printk("pgtbl0 = %lx, PPN = %lx\n", pgtbl0, pgtbl0[VPN0]>>10<<12);
 }

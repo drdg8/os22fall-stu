@@ -34,13 +34,13 @@ void trap_handler(unsigned long scause, unsigned long sepc, struct pt_regs *regs
             // printk("ECALL_FROM_U_MODE Interrupt!\n");
             syscall(regs);
         } else if (scause % 16 == 12){
-            printk("Instruction Page Fault!\n");
+            printk("[S] Instruction Page Fault!\n");
             do_page_fault(regs);
         } else if (scause % 16 == 13){
-            printk("Load Page Fault!\n");
+            printk("[S] Load Page Fault!\n");
             do_page_fault(regs);
         } else if (scause % 16 == 15){
-            printk("Store/AMO Page Fault!\n");
+            printk("[S] Store/AMO Page Fault!\n");
             // printk("scause: %lx, ", scause);
             // printk("stval: %lx, ", regs->stval);
             // printk("sepc: %lx\n", regs->sepc);
@@ -74,10 +74,10 @@ void do_page_fault(struct pt_regs *regs) {
         uint64_t new_page = alloc_page();
         // 非匿名空间
         if(!(vma->vm_flags & VM_ANONYM)){
-            printk("vm_start: %lx, vm_end: %lx, vm_size: %lx\n", vma->vm_start, vma->vm_end, vma->vm_content_size_in_file);
+            // printk("vm_start: %lx, vm_end: %lx, vm_size: %lx\n", vma->vm_start, vma->vm_end, vma->vm_content_size_in_file);
             uint64_t disk_file_start = (uint64_t)ramdisk_start + vma->vm_content_offset_in_file;
             uint64_t file_end = vma->vm_start + vma->vm_content_size_in_file;
-            printk("disk_file_start: %lx, file_end: %lx, stval: %lx\n", disk_file_start, file_end, regs->stval);
+            // printk("disk_file_start: %lx, file_end: %lx, stval: %lx\n", disk_file_start, file_end, regs->stval);
             char *dst = (char *)new_page;
             char *src = (char *)disk_file_start;
             // tip: uint may overflow
@@ -93,10 +93,10 @@ void do_page_fault(struct pt_regs *regs) {
             for(uint64_t j = bad_address&0xfff; j < next_map_size; j++){
                 dst[j] = src[j - bad_address&0xfff];
             }
-            printk("next_map_size: %lx\n", next_map_size);
-            printk("non-anonymous\n");
+            // printk("next_map_size: %lx\n", next_map_size);
+            // printk("non-anonymous\n");
         } else {
-            printk("anonymous\n");
+            // printk("anonymous\n");
         }
         // User and valid
         // here cannot use else if !!
@@ -110,8 +110,7 @@ void do_page_fault(struct pt_regs *regs) {
         if(vma->vm_flags & VM_R_MASK){
             flag |= 0b00010;
         }
-        printk("flag:%lx\n", flag);
+        // printk("flag:%lx\n", flag);
         create_mapping(current->pgd, bad_address >> 12 << 12, new_page - PA2VA_OFFSET, PGSIZE, flag);
-        printk("finish\n");
     }
 }

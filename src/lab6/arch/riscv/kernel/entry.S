@@ -4,10 +4,10 @@
 _traps:
     # YOUR CODE HERE
     csrr t0, sscratch
-    beq t0, x0, _switch_reg
+    beq t0, x0, switch_reg
     csrw sscratch, sp
     mv sp, t0
-_switch_reg:
+switch_reg:
     # 1. save 32 registers and sepc to stack
     # add sstatus stval sscratch scause 4
     add sp, sp, -(32 + 5)*8
@@ -61,6 +61,8 @@ _switch_reg:
     mv a2, sp
     jal ra, trap_handler
 
+    .global __ret_from_fork
+__ret_from_fork:
     # 3. restore sepc and 32 registers (x2(sp) should be restore last) from stack
     // load sp 
     ld t0, 256(sp)
@@ -111,10 +113,10 @@ no_add4:
     add sp, sp, 33*8
 
     csrr t0, sscratch
-    beq t0, x0, _switch_reg_end
+    beq t0, x0, switch_reg_end
     csrw sscratch, sp
     mv sp, t0
-_switch_reg_end:
+switch_reg_end:
     # 4. return from trap
     sret
 

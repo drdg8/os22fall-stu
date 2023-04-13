@@ -3,6 +3,7 @@
 #include "stdint.h"
 #include "defs.h"
 #include "elf.h"
+#include "stddef.h"
 
 extern void __dummy();
 
@@ -88,7 +89,7 @@ void task_init() {
     uint64_t Ustack;
     uint64_t va;
     /* just init one task */ 
-    for (int i = 1; i < NR_TASKS; i++ ){
+    for (int i = 1; i < 2; i++ ){
         pgNum = kalloc();
         task[i] = (struct task_struct*)pgNum;
         task[i]->state = TASK_RUNNING;
@@ -154,24 +155,11 @@ uint64_t thread_offset = __builtin_offsetof(struct task_struct, thread);
 void switch_to(struct task_struct* next) {
     /* YOUR CODE HERE */
     if(current != next){
+        printk("[S] Switch to: pid: %d, priority: %d, counter: %d\n", next->pid, next->priority, next->counter);
         struct task_struct *tmp = current;
         current = next;
         // here the cpu_switch_to: change reg
         __switch_to(tmp, next);
-/*
-        __asm__ volatile(
-            "addi sp, sp, -8\n"
-            "sd ra, 0(sp)\n"
-            "mv a0, %[current]\n"
-            "mv a1, %[next]\n"
-            "jal ra, __switch_to"
-            "ld ra, 0(sp)\n"
-            "addi sp, sp, 8\n"
-            : 
-            : [current] "r" (current), [next] "r" (next)
-            : "memory"
-        );
-*/
     }
 }
 
@@ -200,7 +188,7 @@ void schedule(void) {
     uint64_t min = time_max_more;
     while (1){
         for (int i = 1; i < NR_TASKS; i++){
-            if (min > task[i]->counter && task[i]->counter && task[i]->state == TASK_RUNNING){
+            if (task[i] != NULL && min > task[i]->counter && task[i]->counter && task[i]->state == TASK_RUNNING){
                 next = task[i];
                 min = task[i]->counter;
             }
@@ -208,11 +196,13 @@ void schedule(void) {
         if (min != time_max_more) break;
         if (min == time_max_more){
             for (int i = 1; i < NR_TASKS; i++){
-                task[i]->counter = rand();
-                // task[i]->counter = 1;
-                // printk("SET [PID = %d COUNTER = %d]\n", i, task[i]->counter);
+                if(task[i] != NULL){
+                    task[i]->counter = rand();
+                    // task[i]->counter = 1;
+                    printk("[S] SET [PID = %d COUNTER = %d]\n", i, task[i]->counter);
+                }
             }
-            // continue;
+            continue;
         }
     }
     // printk("next = %x\n", (uint64_t)next);
@@ -231,7 +221,7 @@ void schedule(void) {
 		if (max) break;
         for (int i = 1; i < NR_TASKS; i++){
             task[i]->counter = (task[i]->counter >> 1) + task[i]->priority;
-            printk("SET [PID = %d PRIORITY = %d COUNTER = %d]\n", i, task[i]->priority, task[i]->counter);
+            printk("[S] SET [PID = %d PRIORITY = %d COUNTER = %d]\n", i, task[i]->priority, task[i]->counter);
         }
 	}
 	switch_to(next);

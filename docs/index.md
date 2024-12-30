@@ -19,11 +19,11 @@
 ```bash
 $ pip3 install mkdocs-material                      # 安装 mkdocs-material
 $ git clone https://github.com/ZJU-SEC/os22fall-stu # clone 本 repo
-$ mkdocs serve                                      # 本地渲染
+$ mkdocs serve -a 127.0.0.1:18000                   # 本地渲染
 INFO     -  Building documentation...
 INFO     -  Cleaning site directory
 ...
-INFO     -  [11:00:57] Serving on http://127.0.0.1:8000/os22fall-stu/
+INFO     -  [11:00:57] Serving on http://127.0.0.1:18000/os22fall-stu/
 ```
 
 ## 致谢

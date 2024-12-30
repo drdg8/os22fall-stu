@@ -164,7 +164,7 @@ start_address           end_address
 ```
 
 ## 4 实验步骤
-### 4.1 准备工程
+### 4.0 准备工程
 * 此次实验基于 lab3 同学所实现的代码进行。
 * 需要修改 `defs.h`, 在 `defs.h` **添加**如下内容：
     ```c
@@ -186,6 +186,39 @@ start_address           end_address
                 └── vmlinux.lds.S
     ```
     这里我们通过 `vmlinux.lds.S` 模版生成 `vmlinux.lds`文件。链接脚本中的 `ramv` 代表 `VMA ( Virtual Memory Address )` 即虚拟地址，`ram` 则代表 `LMA ( Load Memory Address )`, 即我们 OS image 被 load 的地址，可以理解为物理地址。使用以上的 vmlinux.lds 进行编译之后，得到的 `System.map` 以及 `vmlinux` 采用的都是虚拟地址，方便之后 Debug。
+
+### 4.1 关于 PIE
+
+在开始实验开启虚拟地址之前，我们还需要对 Makefile 进行一些修改来防止后面运行/调试出现问题。如果大家观察过之前的 lab 编译后再经过 objdump 反汇编的结果，你可能会发现 head.S 的第一句设置栈的汇编代码被翻译成了“奇怪”的东西：
+
+```asm
+    la sp, boot_stack_top
+    80200000:	00003117          	auipc	sp,0x3
+    80200004:	02013103          	ld	sp,32(sp) # 80203020 <_GLOBAL_OFFSET_TABLE_+0x18>
+```
+
+你可能好奇过这里为什么要吧 `boot_stack_top` 的地址 ld 出来，而且是从哪里 ld 出来的。答案 objdump 的注释已经给出了，是从一个叫 `_GLOBAL_OFFSET_TABLE_` 的地方取出来的，这也就是你可能听说过的 GOT 表（全局偏移表），有了它就可以实现 PIE（位置无关执行）了，在每次取地址的时候，只要通过 GOT 表来取，就可以使得即使代码被放在不同地址执行，也可以取到正确的地址。
+
+当然，在我们实现 kernel 的时候，所有的地址都是不变的，代码也始终会被 load 到 0x80200000 的地方，因此这个 PIE 对我们并没有作用。相反，在本次试验中它还会有副作用，因为 GOT 表里的地址都是最终的虚拟地址，所以在 kernel 启用虚拟地址之前，一切从 GOT 表取出的地址都是错的，这种情况下需要手动给 `la` 得到的地址减去 `PA2VA_OFFSET` 才能得到正确的物理地址。
+
+为了避免这种情况，我们可以直接关掉 PIE，只需要在 Makefile 的 `CF` 中加一个 `-fno-pie` 就可以强制不编译出 PIE 的代码。在这种情况下第一句的汇编代码会被编译成：
+
+```asm
+    la sp, boot_stack_top
+    80200000:	00005117          	auipc	sp,0x5
+    80200004:	00010113          	mv	sp,sp
+```
+
+它直接使用 `auipc` 根据目标基于当前 pc 的偏移就能计算出正确的地址，而且这种代码不管是否启用了虚拟地址，都是有效的。因此在实验开始前，请同学们在 Makefile 中加上 `-fno-pie`。
+
+ps: 这一段关于PIE内容是从最新的lab中找到的, 这也解答了为什么工程中`la sp, boot_stack_top`需要如下. 为了保持可运行, 原工程中未作修改.
+```asm
+    # set sp
+    la sp, boot_stack_top
+    li t0, 0xffffffdf80000000
+    sub sp, sp, t0
+    add s0, sp, x0
+```
 
 ### 4.2 开启虚拟内存映射。
 在 RISC-V 中开启虚拟地址被分为了两步：`setup_vm` 以及 `setup_vm_final`，下面将介绍相关的具体实现。

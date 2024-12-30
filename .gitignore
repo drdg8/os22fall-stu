@@ -5,3 +5,5 @@ site/
 .gdbinit
 WSL2-Linux-Kernel-linux-msft-wsl-5.10.16.3/
 linux-6.0-rc5/
+draft/
+hello-lkm-master/
